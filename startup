@@ -1,0 +1,10 @@
+(setq load-path (cons "/playpen/share/xemacs/packages/sources/mule/edict/" load-path))
+(setq debug-on-error t)
+(setq edict-dictionaries '("edictj"))
+(setq edict-dictionary-path /playpen/share/xemacs/packages/sources/mule/edict/")
+(require 'edict)
+(featurep 'edict)
+(featurep 'dui)
+(featurep 'dui-registry)
+
+

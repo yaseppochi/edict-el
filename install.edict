@@ -1,0 +1,709 @@
+#!/bin/sh
+
+# Installation Script Copyright (C) 1992 Bob Kerns <rwk@crl.dec.com>
+
+echo <<GNUHEADER
+
+Installation script for edict.el, an gnu emacs interface to EDICTJ
+Public Domain japanese/english dictionary.
+
+Contents Copyright (c) 1991, 1992 by Per Hammarlund <perham@nada.kth.se>
+and Copyright (c) 1992 Bob Kerns <rwk@crl.dec.com>
+
+edict.el written by Per Hammarlund <perham@nada.kth.se>
+Morphology and private dictionary handling/editing by Bob Kerns <rwk@crl.dec.com>
+International installation script by Bob Kerns <rwk@crl.dec.com>
+Helpful remarks from Ken-Ichi Handa <handa@etl.go.jp>.
+The EDICTJ PD dictionary is maintained by Jim Breen <jwb@monu6.cc.monash.edu.au>
+Your credits here if you contribute!
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 1, or (at your option)
+  any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+GNUHEADER
+
+export EPATH
+EPATH="/tmp/edict.$$"
+
+export PATH
+PATH=$EPATH:/bin:/usr/bin:$PATH
+export PWD
+PWD=`pwd`
+export DATE
+DATE=`date`
+
+# Script for installing the edict nemacs library.
+
+if [ -d $EPATH ] || [ -f $EPATH ]; then
+	rm -rf $EPATH
+fi
+
+trap "rm -rf $EPATH" 0
+mkdir $EPATH
+
+if [ -f $EPATH/failure ]; then
+	rm -f $EPATH/failure
+fi
+
+cat <<'ENDMSG' >$EPATH/msg
+#!/bin/sh
+X=$LN
+
+if [ ! X = 'EN' ]; then
+	if  egrep "^$X[ 	]?$1[ 	]?" $EPATH/text >/dev/null; then
+	: ;
+	else
+		X='EN'
+	fi
+fi
+
+egrep "^$X[ 	]?$1[ 	]?" $EPATH/text >/dev/null ||
+	{
+	echo "Could not find $X message $1"
+	exit 1
+	}
+
+# Do this to get variable substitution in messages.
+# Some /bin/sh's aren't 8-bit clean, and all of them will screw up
+# due to the the '$' chars in the JIS KI/KO sequences.
+# So we have to do things the hard way.  Instead of allowing arbitrary
+# variable substitutions, we substitute for a fixed set of vars.
+# If you add a variable to this list, be sure it's exported!
+
+sed -e "s!@PWD!$PWD!;
+	s!@DISTDIR!$DISTDIR!;
+	s!@EMACSDIR!$EMACSDIR!;
+	s!@HOME!$HOME!;
+	s!@DATE!$DATE!;
+	s!@LN!$LN!;
+	s!@INSTDIR!$INSTDIR!" $EPATH/text |
+  sed -n -e "s/^$X[ 	][ 	]*$1[ 	][ 	]*//p"
+ENDMSG
+chmod a+x $EPATH/msg
+
+cat <<'ENDLOG' >$EPATH/log
+#!/bin/sh
+export LN
+# Log the user's responses & the program's actions & discoveries.
+
+msg $1 >>/tmp/edict.log.$LN
+
+# For the sake of bug reports, log it in english as well.
+
+case "$LN" in
+EN)	;;
+*)	LN='EN'
+	msg $1 >>/tmp/edict.log.$LN
+	;;
+esac
+
+ENDLOG
+chmod a+x $EPATH/log
+
+cat <<'ENDLOGAPPEND' >$EPATH/logappend
+#!/bin/sh
+
+# Append a file to the log file(s)
+
+cat $1 >>/tmp/edict.log.EN
+
+case "$LN" in
+EN)	;;
+*)	cat $1 >>/tmp/edict.log.$LN
+	;;
+esac
+rm $1
+ENDLOGAPPEND
+chmod a+x $EPATH/logappend
+
+cat <<'ENDCOPY' >$EPATH/copy
+#!/bin/sh
+
+# Copy a file, logging and echoing that fact.
+
+touch $EPATH/mv.out
+echo "mv $2  $2.orig"
+if [ -f $2 ]; then
+	echo "mv $2 $2.orig"
+	mv $2 $2.orig >>$EPATH/mv.out 2>&1 || 
+		{
+		cat $EPATH/mv.out
+		touch $EPATH/failure
+		}
+fi
+echo "mv $2 $2.orig" >>$EPATH/copy.out
+cat $EPATH/mv.out >>$EPATH/copy.out
+rm $EPATH/mv.out
+
+touch $EPATH/cp.out
+echo "cp -p $1 $2"
+cp -p $1 $2 >>$EPATH/cp.out 2>&1 || 
+	{
+	cat $EPATH/cp.out
+	touch $EPATH/failure
+	}
+echo "cp -p $1 $2" >>$EPATH/copy.out
+cat $EPATH/cp.out >>$EPATH/copy.out
+rm $EPATH/cp.out
+
+touch $EPATH/chmod.out
+echo "chmod 0644 $2"
+chmod 0644 $2 >>$EPATH/chmod.out 2>&1 || 
+	{
+	cat $EPATH/chmod.out
+	touch $EPATH/failure
+	}
+echo "chmod 0644 $2" >>$EPATH/copy.out
+cat $EPATH/chmod.out >>$EPATH/copy.out
+rm $EPATH/chmod.out
+
+logappend $EPATH/copy.out
+
+ENDCOPY
+chmod a+x $EPATH/copy
+
+# Build our database of textual messages
+# First item is the two-character language code.
+# Second item is the message name.  A multiline message is
+# formed by having multiple lines with that name.
+# The remainder of the line is the text which should be printed.
+cat <<'END' >$EPATH/text
+# It is OK to have comments in here.
+# If a translation for a messsage does not exist, the english version will be used.
+EN LANGUAGE	Using english messages.
+JA LANGUAGE	日本語を使っています。
+SW LANGUAGE	Anv{nder svenska meddelanden.
+EN DISTDIR	What directory has the edict files? [@PWD]
+JA DISTDIR	edictのファイルの登録簿はどこですか？ [@PWD]
+SW DISTDIR	Var finns edictprogrammets filer? [@PWD]
+EN XDISTDIR	The edict files are in @DISTDIR
+JA XDISTDIR	edict のファイルの登録簿は @DISTDIR にあります。
+SW XDISTDIR	Edictprogrammets filer finns i @DISTDIR.
+EN EDICTJDIR	What directory has the edictj dictionary? [@DISTDIR]
+JA EDICTJDIR	edictj という電子辞典はどこですか？ [@DISTDIR]
+SW EDICTJDIR	Var finns lexikonet EDICTJ? [@DISTDIR]
+EN XEDICTJDIR	The edictj dictionary is in @DISTDIR.
+JA XEDICTJDIR	edictjは@DISTDIRにあります。
+SW XEDICTJDIR	Lexikonet EDICTJ finns i @DISTDIR.
+EN INSTDIR	Normally, this software should be placed in the directory
+EN INSTDIR	which holds your site's emacs libraries.  However, you do
+EN INSTDIR	not have write access to that directory, so you will need to
+EN INSTDIR	place them somewhere else.
+EN INSTDIR	
+EN INSTDIR	In what directory should I put the edict files? [leave in @DISTDIR]
+JA INSTDIR	日頃、このソフトウェアはサイトのnemacsのライブラリの登録簿に
+JA INSTDIR	格納するものです。でも、あなたはその登録簿を書けません。これから、
+JA INSTDIR	ソフトウェアは余所に格納しましょう。
+JA INSTDIR
+JA INSTDIR	edict は、どの登録簿に格納しておきましょうか？  [@DISTDIR]
+SW INSTDIR	Egentligen skall edictprogrammets filer placeras i katalogen
+SW INSTDIR	som har emacs |vriga filer; emacs "bibliotek".  Men iom att
+SW INSTDIR	du inte har skrivr{ttigheter d{r, s} m}ste du l{gga dem
+SW INSTDIR	n}gon annanstans.
+SW INSTDIR
+SW INSTDIR	I vilken katalog ska jag placera edictprogrammets filer? [@DISTDIR]
+EN XINSTDIR	The installation will be in @INSTDIR
+JA XINSTDIR	ソフトウェアは@INSTDIRに格納しまうす。
+SW XINSTDIR	Edictprogrammet kommer att installeras i @INSTDIR.
+EN BYTECOMP	Emacs byte-compiling @DISTDIR/edict.el and
+EN BYTECOMP	@DISTDIR/edict-test.el.
+SW BYTECOMP	Emacs byte-compiling @DISTDIR/edict.el och
+SW BYTECOMP	@DISTDIR/edict-test.el.  (Detta ger dig
+SW BYTECOMP	en "snabbare", kompilerad, version av programmen.)
+JA BYTECOMP	emacs で @DISTDIR/edict.el と
+JA BYTECOMP	@DISTDIR/edict-test.el を byte-compile しています。
+EN DEFAULTS	In the following questions, if a default value may appear between
+EN DEFAULTS	square brackets. []  If you type Return, I will use that value.
+SW DEFAULTS	I de f|ljande fr}gorna s} kan det finnas ett standardsvar, givet mellan
+SW DEFAULTS	hakparenteser ([]), om du bara trycker RETURN kommer detta standardsvar att
+SW DEFAULTS	anv{ndas.
+EN DOTEMACSQ	Should I add the default key bindings and setup to your .emacs file?
+EN DOTEMACSQ	You may type SHOW to see what will be inserted.
+EN DOTEMACSQ	Please type yes, no, or show.
+SW DOTEMACSQ	Ska jag l{gga till n|dv{ndig initieringskod till din .emacs-fil?
+SW DOTEMACSQ	Om du skriver VISA visar jag vad som kommer att l{ggas till.
+SW DOTEMACSQ	Svara JA, NEJ, eller VISA.
+EN DOTEMACSADD	@HOME/.emacs updated.
+SW DOTEMACSADD	@HOME/.emacs uppdaterad.
+EN YESORNO	Please answer yes, no, or show.
+JA YESORNO	「はい」か「いいえ」か「示して」かと答えて下さい。ロマ字などいいです。
+JA YESORNO	英語もいいです。
+SW YESORNO	Svara JA, NEJ eller VISA.
+EN YESNOCONV	cat
+JA YESNOCONV	sed 's/HAI/YES/; s/IIE/NO/; s/SHIME.*/SHOW/;\
+JA YESNOCONV		s/はい/YES/; s/いいえ/NO/; s/示.*/SHOW/; s/しめ.*/SHOW/'
+SW YESNOCONV	sed 's/JA/YES/; s/NEJ/NO/; s/VISA/SHOW/'
+EN LOGHEADER	----------------------------------------------------------------
+EN LOGHEADER	Installation at @DATE.
+SW LOGHEADER	----------------------------------------------------------------
+SW LOGHEADER	Installering gjord @DATE.
+EN LOGBEGIN2	A log file is being kept in english in /tmp/edict.log.EN
+SW LOGBEGIN2	En logfil med engelsk inneh}ll kommer att skapas och underh}llas.
+SW LOGBEGIN2	Filen heter /tmp/edict.log.EN.
+EN LOGBEGIN	A log file is being kept in /tmp/edict.log.@LN.
+SW LOGBEGIN	En logfil som visar vad jag g|r finns.  Den heter /tmp/edict.log.@LN.
+EN SUCCESS	Installation successfully completed.
+SW SUCCESS	Installationen gick bra.
+EN FAILURE	Installation encountered errors.
+SW FAILURE	Installationen gick inte bra, n}got fel intr{ffade.
+EN NOCPYEDIR	The emacs libraries are already in the right locations.
+SW NOCPYEDIR	Emacsbiblioteken finns redan p} r{tt plats.
+EN NOCPYEJDIR	The edictj dictionary file is already in the right location.
+SW NOCPYEJDIR	Lexikonet EDICTJ finns redan p} r{tt st{lle.
+EN EJUSEDEMO	Using the demo version of the EDICTJ file.
+EN EJUSEDEMO	Please place the real one in @INSTDIR/edictj
+JA EJUSEDEMO	いま、デモedictを使っています. あの妥当edictjがインストル下さい。
+SW EJUSEDEMO	Jag kommer att anv{nde en demoversion av lexikonet
+SW EJUSEDEMO	EDICTJ.  Installera det riktiga lexikonet som
+SW EJUSEDEMO	@INSTDIR/edictj
+EN .EMACSCOMNT	;;; This sets up the standard key bindings for edict commands to
+EN .EMACSCOMNT	;;; autoload from @INSTDIR.
+EN .EMACSCOMNT	;;; 
+EN .EMACSCOMNT	;;; Place this in your $HOME/.emacs file.
+EN .EMACSCOMNT	;;; Edit the global-set-key forms if you wish to change the key assignments.
+EN .EMACSCOMNT	;;; The default key assignments are as follows (m- is the same as ESC-)
+EN .EMACSCOMNT	;;;   m-*	edict-search-english	Search for an english word.
+EN .EMACSCOMNT	;;;   m-&	edict-search-kanji	Search for a Japanese word.
+EN .EMACSCOMNT	;;;   m-+	edict-insert		Insert the last match.
+JA .EMACSCOMNT	;;; これは、edict の標準のキーバインディングを込み立てます。
+JA .EMACSCOMNT	;;; その機能が @INSTDIR からautoload 自動ロードするのを込み立てます。
+JA .EMACSCOMNT	;;; 
+JA .EMACSCOMNT	;;; このコードは $HOME/.emacs に置いて下さい。
+JA .EMACSCOMNT	;;; キーバインディングを変更すると、global-set-key の形を編集して下さい。
+JA .EMACSCOMNT	;;; 以下、デファールトキーバインディングがあります。
+JA .EMACSCOMNT	;;; (「m-」と 「ESC-」は同じです。)
+JA .EMACSCOMNT	;;;   m-*	edict-search-english	英語の言葉を探せ
+JA .EMACSCOMNT	;;;   m-&	edict-search-kanji	日本語の言葉を探せ
+JA .EMACSCOMNT	;;;   m-+	edict-insert		一昨一致を挿入しろ
+SW .EMACSCOMNT	;;; F|ljande kod ser till att edictprogrammet laddas automatiskt
+SW .EMACSCOMNT	;;; fr}n @INSTDIR.
+SW .EMACSCOMNT	;;;
+SW .EMACSCOMNT	;;; Skriv in detta i din $HOME/.emacs fil.
+SW .EMACSCOMNT	;;; [ndra global-set-key anropen om du vill att kommandona
+SW .EMACSCOMNT	;;; skall anropas fr}n andra tangenter.
+SW .EMACSCOMNT	;;; Detta {r standardtangentmappningarna (m- {r samma som ESC-)
+SW .EMACSCOMNT	;;;   m-*	edict-search-english	S|k med ett engelskt ord.
+SW .EMACSCOMNT	;;;   m-&	edict-search-kanji	S|k med ett japanskt ord.
+SW .EMACSCOMNT	;;;   m-+	edict-insert		Skriv in senaste hittade ord.
+END
+
+# deduce which tr we have: v6 or v7
+case "`echo B | tr A-Z a-z `" in
+b)	trversion=v7 ;;
+B)	trversion=v6 ;;			# or System V
+esac
+export trversion
+
+# Some systems use LANG, not LANGUAGE (i.e. ultrix)
+
+export LN
+LN=$LANGUAGE
+[ $LN ] || LN=$LANG
+
+LN=`echo $LN | sed -n -e 's/^\(..\).*/\1/p'`
+LN=`echo $LN | case "$trversion" in 
+		v6)	tr [a-z] [A-Z] ;;
+		v7)	tr a-z A-Z     ;;
+	       esac`
+
+case "$LN" in
+JP)		:	;;
+JP|EN|JA)	:	;;
+SW)		:	;;
+*)
+	echo 'What language should I use?'
+	echo '(EN = English, JA = Japanese, SW = Swedish) [EN]'
+	read LN
+	;;
+esac
+
+LN=`echo $LN | case "$trversion" in 
+		v6)	tr [a-z] [A-Z] ;;
+		v7)	tr a-z A-Z     ;;
+	       esac`
+
+# Handle any common aliases for the language identifiers, such as the native terms
+# or country names.
+case "$LN" in
+'')	LN='EN'	;;
+EN|ENGLISH|BRITISH|BRITAIN|ENGLAND|US|AMERICAN)  LN='EN' ;;
+JA|'日本'|'日本語'|JAPANESE|NIHONGO|JP|NIHON|JAPAN)	LN='JA'	;;
+SW|SWEDISH|SWEDEN|SWE|SE|SVENSKA|SVERIGE)	LN='SW' ;;
+*)	echo "I don't understand the language $LN."
+	LN='EN'
+	;;
+esac
+
+log LOGHEADER
+
+case "$LN" in
+EN)	log LOGBEGIN2
+	msg LOGBEGIN2
+	;;
+*)	log LOGBEGIN
+	msg LOGBEGIN
+	log LOGBEGIN2
+	msg LOGBEGIN2
+	;;
+esac
+
+msg LANGUAGE
+log LANGUAGE
+echo
+msg DEFAULTS
+echo
+
+export DISTDIR
+msg DISTDIR
+read DISTDIR
+[ $DISTDIR ] || DISTDIR=`pwd`
+
+export EDICTJDIR
+msg EDICTJDIR
+read EDICTJDIR
+
+[ $EDICTJDIR ] || EDICTJDIR=$DISTDIR
+
+log XEDICTJDIR
+
+echo "# Values extracted from nemacs." >$EPATH/emacs.vars
+
+cat <<END >$EPATH/emacs.info
+(setq epath (reverse load-path))
+(setq edir (expand-file-name (car epath)))
+(if (string-match "/$" edir)
+    (setq edir (substring edir 0 (- (length edir) 1))))
+(princ (format "export EMACSDIR\nEMACSDIR=%s\n" edir))
+(princ (format "export EMACSPATH\nEMACSPATH=%s" (car epath)))
+(let ((path (cdr epath)))
+  (while path  
+     (princ (format ":%s" (car path)))
+     (setq path (cdr path))))
+(princ "\n")
+END
+
+nemacs -batch -load $EPATH/emacs.info >>$EPATH/emacs.vars
+. $EPATH/emacs.vars
+
+echo "# End of values extracted from nemacs." >>$EPATH/emacs.vars
+
+logappend $EPATH/emacs.vars
+
+# OK, let's see if we can install it into the normal location.
+
+if [ -w $EMACSDIR ]; then
+	# Yes!
+	export INSTDIR
+	INSTDIR=$EMACSDIR
+else
+	# No, gotta ask.
+	export INSTDIR
+	msg INSTDIR
+	read INSTDIR
+	[ $INSTDIR ] || INSTDIR=$DISTDIR
+fi
+
+msg XINSTDIR
+log XINSTDIR
+
+# Byte compile the program.
+log BYTECOMP
+msg BYTECOMP
+
+cat <<END >$EPATH/emacs.comp
+(load-library "bytecomp")
+
+;;; Fix emacs byte compiler bug...
+;;; This used to blow out if given anything with a non-symbol
+;;; in the CAR.  Emacs 18.57 has a different form of the bug,
+;;; where &optional or &rest in the argument list of a lambda
+;;; combination silently mis-compiles.  --RWK
+(defun byte-compile-form (form)
+  (setq form (macroexpand form byte-compile-macro-environment))
+  (cond ((eq form 'nil)
+	 (byte-compile-constant form))
+	((eq form 't)
+	 (byte-compile-constant form))
+	((symbolp form)
+	 (byte-compile-variable-ref 'byte-varref form))
+	((not (consp form))
+	 (byte-compile-constant form))
+	((symbolp (car form))
+	 (let ((handler (get (car form) 'byte-compile)))
+	   (if handler
+	       (funcall handler form)
+	     (byte-compile-normal-call form))))
+	((and (consp (car form))
+	      (eq (car (car form)) 'lambda))
+	 ;; It's a lambda combination.  Turn it into a LET.
+	 (let* ((lambda-expr (car form))
+		(arglist (nth 1 lambda-expr))
+		(body (nthcdr 2 lambda-expr))
+		(params (cdr form))
+		(original-arglist arglist) ; For error reporting
+		(original-params params)   ; For error reporting
+		(state nil)		;Last &-keyword seen.
+		(binding-list nil)	;LET's binding list.
+		(arg nil))
+	   ;; Parse the argument list, and build the binding list.
+	   ;; Check for invalid arglist syntax as we go.
+	   (while arglist
+	     (setq arg (car arglist)
+		   arglist (cdr arglist))
+	     (cond
+	      ((eq arg '&optional )
+	       (when state
+		 (error "Illegal argument list syntax:  &optional after %s."
+			state))
+	       (setq state arg))
+	      ((eq arg '&rest )
+	       (cond
+		 ((or (eq state nil)
+		      (eq state '&optional)))
+		 (t (error "Illegal argument list syntax: &rest after %s."
+			   state)))
+	       (setq arg (car arglist)
+		     arglist (cdr arglist))
+	       (setq binding-list
+		     (cons (list arg (list* 'list params))
+			   binding-list)
+		     params nil
+		     state arg))
+	      (t (cond ((eq state '&rest)
+			(error "Extra junk after &rest parameter: %s."
+			       (cons arg arglist))))
+		 (unless (eq state '&optional)
+		   (unless params
+		     (error "Insufficient arguments.  Arglist=%s\nParameters=%s"
+			    original-arglist original-params)))
+		 (setq binding-list
+		       (cons (list arg (car params))
+			     binding-list)
+		       params (cdr params)))))
+	   (when params
+	     (error "Too many arguments.  Arglist=%s\nParameters=%s"
+		    original-arglist original-params))
+	   (setq binding-list (nreverse binding-list))
+	   (byte-compile-form
+	    (list* 'let binding-list body))))
+	;; Things like autoload, macro, mock-lisp.
+	((consp (car form)) (byte-compile-normal-call form))
+	(t (error "Illegal form: %s" form)))
+  (setq byte-compile-maxdepth
+	(max byte-compile-maxdepth
+	     (setq byte-compile-depth (1+ byte-compile-depth)))))
+
+;;; Now here's another compiler fix:  Add eval-when !!
+
+(defmacro eval-when (when &rest forms)
+  (and (or (member 'eval when)
+	    (member ':execute when))
+       (mapcar (function eval) forms))
+  (and (or (member 'load when)
+	   (member ':load-toplevel when))
+       (cons 'progn forms)))
+
+(defun macro-function (name)
+  (and (fboundp name)
+       (let ((fun (symbol-function name)))
+	 (and (not (atom fun))
+	      (eq (car fun) 'macro)
+	      (cdr fun)))))
+
+(defun macroexpand-1 (form)
+  (if (atom form) form
+    (if (listp (car form)) form
+      (let ((expander (macro-function (car form))))
+	(apply expander (cdr form))))))
+
+(defun byte-compile-file-form (form)
+  (let ((expander nil))
+    (cond ((not (listp form))
+	   form)
+	  ((memq (car form) '(defun defmacro))
+	   (let* ((name (car (cdr form)))
+		  (tem (assq name byte-compile-macro-environment)))
+	     (if (eq (car form) 'defun)
+		 (progn
+		   (message "Compiling %s (%s)..." filename (nth 1 form))
+		   (cond (tem (setcdr tem nil))
+			 ((and (fboundp name)
+			       (eq (car-safe (symbol-function name)) 'macro))
+			  ;; shadow existing macro definition
+			  (setq byte-compile-macro-environment
+				(cons (cons name nil)
+				      byte-compile-macro-environment))))
+		   (prog1 (cons 'defun (byte-compile-lambda (cdr form)))
+		     (if (not noninteractive)
+			 (message "Compiling %s..." filename))))
+	       ;; defmacro
+	       (if tem
+		   (setcdr tem (cons 'lambda (cdr (cdr form))))
+		 (setq byte-compile-macro-environment
+		       (cons (cons name (cons 'lambda (cdr (cdr form))))
+			     byte-compile-macro-environment)))
+	       (cons 'defmacro (byte-compile-lambda (cdr form))))))
+	  ((eq (car form) 'progn)
+	   (cons 'progn
+		 (mapcar (function byte-compile-file-form) (cdr form))))
+	  ((listp (car form)) form)
+	  ((setq expander (macro-function (car form)))
+	   (byte-compile-file-form (macroexpand-1 form)))
+	  ((setq expander (get (car form) 'byte-compile-top-level-handler))
+	   (byte-compile-file-form (funcall expander form)))
+	  ((eq (car form) 'require)
+	   (eval form)
+	   form)
+	  (t form))))
+
+(put 'eval-when 'eval-when-top-level-handler 'byte-compile-top-level-handler)
+(defun eval-when-top-level-handler (form)
+  (let ((when (nth 1 form))
+	(body (nthcdr 2 form)))
+    (princ (format "Eval-when %s...\n" when))
+    (and (or (member 'compile when)
+	     (member ':compile-toplevel when))
+	 (mapcar (function print) body)
+	 (mapcar (function eval) body))
+    (and (or (member 'load when)
+	     (member ':load-toplevel when))
+	 (cons 'progn body))))
+
+;;; Now compile our two files.
+(byte-compile-file "$DISTDIR/edict.el")
+(byte-compile-file "$DISTDIR/edict-test.el")
+END
+
+nemacs -batch -load $EPATH/emacs.comp | tee $EPATH/emacs.comp.out
+
+logappend $EPATH/emacs.comp
+logappend $EPATH/emacs.comp.out
+
+# Now copy, if they're not already there.
+if [ $DISTDIR = $INSTDIR ]; then
+	msg NOCPYEDIR
+	log NOCPYEDIR
+else
+	copy $DISTDIR/edict.ChangeLog $INSTDIR/edict.ChangeLog
+	copy $DISTDIR/edict.el $INSTDIR/edict.el
+	copy $DISTDIR/edict.elc $INSTDIR/edict.elc
+	copy $DISTDIR/edict-test.el $INSTDIR/edict-test.el
+	copy $DISTDIR/edict-test.elc $INSTDIR/edict-test.elc
+	copy $DISTDIR/edict.texinfo $INSTDIR/edict.texinfo
+fi
+
+if [ $EDICTJDIR = $INSTDIR ]; then
+	if [ -f $INSTDIR/edictj ]; then
+		msg NOCPYEJDIR
+		log NOCPYEJDIR
+	else
+		msg EJUSEDEMO
+		log EJUSEDEMO
+		copy $DISTDIR/edictj.demo $INSTDIR/edictj
+	fi
+else
+	if [ -r $EDICTJDIR/edictj ]; then
+		copy $EDICTJDIR/edictj $INSTDIR/edictj
+	elif [ -f $INSTDIR/edictj ]; then
+		: ;
+	else
+		copy $DISTDIR/edictj.demo $INSTDIR/edictj
+	fi
+fi
+
+if [ "$INSTDIR" = "$EMACSDIR" ]; then
+	LOADFILE=edict
+else
+	LOADFILE=$INSTDIR/edict
+fi
+
+# Build a file of suggested .emacs setup.
+echo >$INSTDIR/edict.emacs
+# Start it off with a language-specific explanatory comment.
+msg .EMACSCOMNT >>$INSTDIR/edict.emacs
+
+sed -e "s!@LOADFILE!$LOADFILE!; s!@INSTDIR!$INSTDIR!" <<'EMACSEND' >>$INSTDIR/edict.emacs
+
+(cond ((fboundp 'convert-region-kanji-code)
+       (autoload 'edict-search-english "@LOADFILE"
+		 "Search for a translation of an English word")
+       (global-set-key "\e*" 'edict-search-english)
+
+       (autoload 'edict-search-kanji "@LOADFILE"
+		 "Search for a translation of a Kanji sequence")
+       (global-set-key "\e&" 'edict-search-kanji)
+
+       (autoload 'edict-add-english "@LOADFILE"
+		 "Add a translation of an English word")
+
+       (autoload 'edict-add-kanji "@LOADFILE"
+		 "Add a translation of a Kanji sequence")
+
+       (autoload 'edict-insert "@LOADFILE"
+		 "Insert the last item looked up in edict.")
+
+       (global-set-key "\e+" 'edict-insert)
+
+       (autoload 'edict-insert-english "@LOADFILE"
+		 "Insert the last item looked up in edict.")
+       (autoload 'edict-insert-日本語 "@LOADFILE"
+		 "Insert the last item looked up in edict.")
+
+       (setq *edict-files* '("@INSTDIR/edictj"))))
+
+EMACSEND
+
+# Extract the script for canonicalizing yes or no from whatever natural language.
+msg YESNOCONV >$EPATH/yesnoconv
+
+while [ "ALWAYS" ]; do
+	msg DOTEMACSQ
+	read DOTEMACSQ
+	DOTEMACSQ=`echo $DOTEMACSQ | case "$trversion" in 
+					v6)	tr [a-z] [A-Z] ;;
+					v7)	tr a-z A-Z     ;;
+					esac`
+
+	DOTEMACSQ=`echo $DOTEMACSQ | (. $EPATH/yesnoconv)`
+	case $DOTEMACSQ in
+	Y|YES)
+		sed -e '/;;; Start of EDICT/,/;;; End of EDICT/ D' $HOME/.emacs >$EPATH/.emacs.out
+		echo ";;; Start of EDICT's automatically-added stuff." >>$EPATH/.emacs.out
+		cat $INSTDIR/edict.emacs >>$EPATH/.emacs.out
+		echo ";;; End of EDICT's automatically-added stuff." >>$EPATH/.emacs.out
+		[ -f $HOME/.emacs ] && mv $HOME/.emacs $HOME/.emacs.orig
+		mv $EPATH/.emacs.out $HOME/.emacs
+		msg DOTEMACSADD
+		log DOTEMACSADD
+		break
+		;;
+	N|NO)
+		break
+		;;
+	SHOW)
+		echo more $INSTDIR/edict.emacs
+		more $INSTDIR/edict.emacs
+		;;
+	*)	msg YESORNO
+		 ;;
+	esac
+done
+
+if [ -f $EPATH/failure ]; then
+	log FAILURE
+	msg FAILURE
+else
+	log SUCCESS
+	msg SUCCESS
+fi

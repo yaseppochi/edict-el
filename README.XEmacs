@@ -1,0 +1,178 @@
+***** edict.el optimized for XEmacs *****
+
+Version 0.9.7
+
+This file Copyright 1998 Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>.
+
+The edict.el package is Copyright 1991, 1992 Per Hammarlund 
+  <perham@nada.kth.se> and 1998 Stephen J. Turnbull
+  <turnbull@sk.tsukuba.ac.jp>.
+
+Individual files may have their own Copyrights differing from the above.
+
+This file is part of XEmacs.
+
+It is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your
+option) any later version.
+
+XEmacs is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with XEmacs; if not, write to the Free Software Foundation,
+Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+Original author:  Per Hammarlund <perham@nada.kth.se>
+Other authors:    Bob Kerns <rwk@crl.dec.com>
+                  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+
+Adapted-by:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp> for XEmacs
+Maintainer:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+
+***** Whatzit? *****
+
+The original edict.el, by Per Hammarlund, was an interface to the
+EDICT Japanese-English dictionary compiled by Jim Breen at Monash
+University.  Using the region and couple of keystrokes, edict.el will
+look up the Japanese key and return all the EDICT entries containing
+that key, in a pop-up buffer.  English is even easier, you just put
+point anywhere in the word you want to look up.  
+
+Bob Kerns added a morphology engine, which reduces a highly inflected
+Japanese word to a list of dictionary forms (eg, itta -> (iku, iu)),
+all of which are looked up.
+
+After several years of service, it became partially incompatible with
+recent FSF Emacsen, especially the byte compiler, and never was
+adapted for XEmacs (which only recently acquired Japanese capability).
+This BETA release adapts edict.el to XEmacs (because that's what the
+maintainer uses), packages it for ease of installation on XEmacs, and
+provides a unified interface to the functions via the Dictionary
+Lookup minor mode.
+
+The next release should provide assurance of FSF Emacs, version 20,
+compatibility for edict.el proper, and possibly a port of the
+Dictionary Lookup minor mode.
+
+***** Installation *****
+
+For XEmacs >= 20.3, get edict-<version>-pkg.tar.gz from
+
+    http://turnbull.sk.tsukuba.ac.jp/Tools/XEmacs/packages/edict/
+
+and untar it in the the directory ~/.xemacs (or root directory of your
+package hierarchy, if you know what that is).  If you are using XEmacs 
+>= 20.5, you're done.
+
+If you're using XEmacs 20.3 or 20.4, then add
+
+	 (load-file "~/.xemacs/lisp/edict/auto-autoloads.el")
+
+to your ~/.emacs or ~/.xemacs/init.el.  Get edict (the dictionary)
+from ftp://ftp.cc.monash.edu.au/pub/nihongo/, and install it in an
+appropriate etc/ or etc/edict/ in your package hierarchy
+(~/.xemacs/etc/ is fine).  For trial purposes, there is a tiny
+edict.demo dictionary supplied with edict.el.
+
+Users of other versions of Mule are welcome to play around; please
+tell me what you did, whether it works or not.
+
+***** User Setup *****
+
+Users of recent XEmacsen should need little setup, unless you are
+using public dictionaries not named "edict" or user dictionaries not
+in your home directory or not named ".edict".  In that case, set the
+variables `edict-dictionaries' and `edict-user-dictionary' as needed.
+
+Other users may need to set up autoloads and possibly their
+load-paths.  The necessary autoloads may be found by "grep -A 1
+'^;;;###autoload$' *.el".  You will also probably need to set the
+variable `edict-dictionary-path' to help edict find your public
+dictionaries.
+
+For some reason, Mule occasionally has trouble recognizing the file
+coding system of edict files.  If so, the Monash distribution
+dictionary `edict', which is in EUC-JP format, should be correctly
+initialized by
+
+	   (setq edict-dictionaries '(("edict" . euc-jp)))
+
+in .emacs.  The value of this variable is a LIST of CONS-or-STRING.
+If a CONS, it should have a STRING as car and a CODING-SYSTEM as cdr.
+Note that the name of this variable has changed.  If your dictionary
+directory is not found at all, you can setq `edict-dictionary-path' to
+a LIST of strings, each of which should be a path to a directory which
+might contain edict dictionaries.
+
+FSF Emacs users will probably not be able to use `dl-mode', described
+below, bcause of differences in implementation of keymaps.  (This is
+completely untested at this writing.)  In that case, you should also
+do the relevant `define-key' calls in .emacs.  (See the commentary at
+the top of edict.el; the autoloads are unnecessary because edict.el
+now uses the auto-autoloads.el file.)
+
+***** Usage *****
+
+The interface to edict is now the Dictionary Lookup minor mode
+(dl-mode).  It is invoked as usual by (eg) "M-x dl-mode", and its
+modeline indicator is "dl".  dl-mode is autoloaded.  The various
+functions are bound to keys in a mode-specific keymap, which is
+invoked by a prefix key.  The default prefix is "C-c $" (by analogy
+with ispell's "M-$").
+
+Unlike the former interface, dui is intended to be a general interface
+to various dictionary-like commands.  Dictionary lookup is bound to
+"s" (for "search") in the sub-keymap; insertion and help are bound
+to "i" and "d" (for "describe method" respectively.  The search mode
+is initialized to "EDICT search Japanese" by default.
+
+Using a prefix argument allows you to change modes.  Eg, "C-u C-c $ s"
+generates a prompt for a "Method:".  Currently valid search methods
+include "EDICT search Japanese", "EDICT search English", and "ispell
+word".  Valid insert methods include "EDICT add English" and "EDICT add 
+Japanese".
+
+edict.el provides a simple dictionary editing mode, automatically
+invoked by the "EDICT add ..." methods, with TAB switching 
+between fields.  An experimental `electric-henkan' mode is available,
+in which the mode recognizes whether a field is Japanese or English
+and invokes your preferred henkan method appropriately.  To try this
+out (setq edict-use-electric-henkan t).  Note that electric henkan
+uses the LEIM interface, so it cannot work if your preferred input
+method is XIM.
+
+Due to the indirect way in which the actual methods are called, a
+separate help function, `dui-describe-method', bound to "C-c $ d", is
+provided to access method documentation.
+
+Enjoy!
+
+***** Bug reports, comments, and feature requests *****
+
+Please send these to "Stephen Turnbull" <turnbull@sk.tsukuba.ac.jp>.
+
+Bug reports are of course of high priority, but I am hoping that users 
+will also report inflections and idioms that the morphology engine
+does not handle.
+
+Known bugs and problems are divided between the file TODO and the
+commentary to edict.el.  (Documentation and organization are both
+known bugs....)
+
+With the reimplementation as a minor mode, it now makes sense to
+provide keystrokes for variations on the basic theme.  One example
+(already implemented for ispell) is to use dl-mode to access other
+dictionary applications.  Another possibility is that kanjidic can be
+loaded into the *edict* buffer as well; one could imagine restricted
+functions (not yet implemented) that only search kanjidic or only
+edict.
+
+***** Historical notes *****
+
+The files edict.el.distrib and edict-test.el.distrib are from the original
+distribution grabbed off of monash.  The .el files in this package have
+been converted to ISO-2022-JP encoding.

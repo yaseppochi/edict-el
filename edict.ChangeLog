@@ -1,0 +1,542 @@
+Thu Apr 23 17:04:59 1992  Per Hammarlund  (perham at perham.nada.kth.se)
+
+	* Stepped up the version number, 0.9.6.
+
+	* Added edict-add-word, which basically initiates a private
+	dictionary session without starting with a word.
+
+Wed Apr 22 09:30:14 1992  Per Hammarlund  (perham at perham.nada.kth.se)
+
+	* Changed the declaration of the *edict-rmoaji-remaps* to be a
+	defvar followed by a setq.
+
+	* Rewrote and corrected some of the short getting started guide at
+	the beginning of edict.el.
+
+Mon Apr  6 06:58:59 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Add eval-when around defstruct.  The compiler half of
+	  eval-when is in a patch that is loading into the compiler
+	  by edict.install.
+
+	* Make the english-plural rule exclude ies.
+
+	* Add edict-plural-ies.
+
+	* Call edict-expand-string with the right arguments.
+
+Fri Apr  3 20:38:03 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Add english-plurals rule.
+
+	* Add syntax types.
+
+Thu Apr  2 02:18:27 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Add rules for だ／です and their conjucations.
+
+	* forgot to exclude newlines in edict-slash-internal.
+
+	* forgot to exclude newlines in edict-char-bracket.
+
+	* Forgot to exclude newlines in edict-line-has-english.
+
+	* Forgot to exclude newlines in edict-parse-entry.
+
+	* Forgot to exclude newlines in pattern for finding english defs
+	  in edict-insert-english.
+
+Wed Apr  1 13:28:18 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Put the cursor at the right place when creating an entry and
+	  there's no english.
+
+	* Sent to perham
+
+	* A bunch of minor tuneups to various things...
+
+	* Make the dictionary-editing commands go through a common wrapper
+	  to keep the electric stuff consistent.
+
+	* Add similar command for /.
+
+	* Add edict-open-bracket, edict-close-bracket, in dictionary
+	  editing mode.
+
+	* Allow edict-new-entry to take an argument.  <= 4 copies the
+	  kanji word into the new entry; >4 (i.e. c-U c-U) copies both
+	  the word and definition, allowing you to enter an alternate
+	  yomi.
+
+	* Split out edict-insert-entry from edict-add-entry-to-file,
+	  and add an inverse: edict-parse-entry.
+
+	* Allow a list of translations in edict-add-entry-to-file.
+
+	* Allow windows to be as small as emacs will allow.  This is
+	  important, because when we look for a suitably-sized window,
+	  this is all the bigger we look for.
+
+	* Add some more comments, and convert and/or/one-armed-if
+	  expressions into when/unless, since those are now provided
+	  by the (require 'cl).  This makes a number of things more
+	  readable.
+
+	* Move edict-test-rule and edict-test-string to edict-test.el.
+
+	* Merge in Per's changes below.
+
+	* Add a bit more commentary.
+
+	* Fix mising "w" and "W" in remap table.
+
+Tue Mar 31 06:16:26 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* edict-subst-affix's args can now be any function of one argument
+	  (the matched substring).
+
+	* Optimize edict-ignore in edict-subst-modified-affix, and
+	  add it to edict-subst-affix.
+
+	* Add 数なし rule to try looking up number expressions without
+	  the number.
+
+Mon Mar 30 10:16:21 1992  Per Hammarlund  (perham at perham.nada.kth.se)
+
+	* Made sure that edict-new-entry put a closing '/' at the end of
+	the current row.  This only works when the user does
+	edict-new-entry, not for save. Sigh.
+
+	* Up version number 0.9.5
+
+	* Added handling of SKK in edict-set-henkan.  Crude
+	implementation. 
+
+Mon Mar 30 00:19:05 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Don't insert [] after hiragana-only words, either!
+
+	* Electric dictionary editing:  When adding entries,
+	  Tab now moves between fields, and Return starts a new entry
+	  on the next line.  It arranges to be in nihongo mode when
+	  appropriate.  Also, it no longer inserts [] after katakana
+	  entries.
+
+Sun Mar 29 14:03:09 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Replace (eval (cons 'and kludge with every.
+
+	* filter out some て->てる in 一段のconjunctive
+
+	* Optimize edict-identity in rule RHS's
+
+	* Use regexp character categories where possible.
+
+	* fix typo: window-next -> next-window.
+
+Fri Mar 27 02:02:58 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Get around nemacs regexp bug that was still deleting the katakan
+	  long-sound dash even after I fixed the regexp.  (Off-by-one
+	  error on the handling of the end of a range.  Sigh.)
+
+Thu Mar 26 20:56:00 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Whitespace list accidentally included the katakana long-sound dash.
+
+	* The conjunctive rules patterns only allowed kanji, not
+	  kana-only spellings.
+
+Wed Mar 25 17:57:09 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Merge in Per's change to edict-eigo-one-word.
+
+	* Up the version to 0.9.4
+
+	* Make whitespace stuff include all the different funny chars.
+
+	* Show the dictionary version number(s) after loading them.
+
+	* Replace '(lambda ...) with (function (lambda ...)).
+
+	* Make the default edict pathname be just "edictj", so it searches
+	  load path to find it.  This should minimize installation
+	  headaches.  You can still override this in your .emacs file.
+
+	* Use load-path to search for edict files if they're relative.
+
+	* Handle ー and punctuation in kanji insertion.  Also, let a
+	  couple of rules work with katakana stems (i.e. する-derived stuff).
+
+Mon Mar 23 11:18:24 1992  Per Hammarlund  (perham at perham.nada.kth.se)
+
+	* Fixed a bug that caused it not to find a english word at the
+	beginning of the buffer.  It ran backward over (point-min).
+	Change made in "edict-eigo-one-word", >= to >.
+
+Mon Mar 23 07:37:03 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Convert to JIS
+
+	* Increment version to 0.9.3
+
+	* Add edict-insert, edict-insert-english, edict-insert-日本語.
+	  The main one to use is edict-insert, which figures out what
+	  language to insert based on the last lookup.
+
+	* Disallow the け -> く -> い path.
+
+	* For the various ます rules, filter out cases derived from ませる.
+
+	* Don't apply the potential-form rules if there's just the suffix.
+
+	* 形容詞ーく -- Be a whole lot more careful about what we consider
+	  an adverb/adjective, based on the previous form.  This should
+	  eliminate a lot of くー行 verbs from having spurious forms.
+
+	* I decided that this filtering scheme isn't so bad after all,
+	  if the decision is made on just the preceding version.
+	  Having parts of speech would still be better, since it would
+	  localize the knowledge of what part of speech an ending could
+	  be.  But I think this will do for now.
+
+	* Separate out (く|て|んで)る case from 助動詞ー１ to 助動詞ー１ａ,
+	  because this case must not include く.  くる should not become
+	  く.  ーる is just a non-grammatical conversational case, anyway,
+	  and only occurs after て so far as I know.
+
+	* Add more filtering to problematic conjunctive forms.
+
+	* Add filtering to filter out rules which are locally plausible,
+	  but could not be applied if what was removed is taken into
+	  consideration.  eg  行く -> 行い -> 行う is not legit, even
+	  though each individual step is, because the first step is based
+	  on the assumption that it's an adverb, and turns it into an
+	  adjective.  The second assumes its the conjunctive form of a
+	  verb, and tries to find the dictionary form.
+
+	  This first pass is pretty bogus.  What it does is try to deduce
+	  it from what endings it has had along the way.  This can't
+	  really work, because there's no reasonable way to determine
+	  whether the ending in question is applying to this root, or
+	  or some further extention of this root.
+
+	  The right thing, is for rules to filter by/assert a part of speach.
+	  But first, I'm going to try this, just to get things going.
+
+	* Remove redundant rule: 「せず」の特別ルール
+
+	* Merge in Per's changes.  Up the version to 0.9.2
+
+	* Provide error checking for unrooted patterns, so that last
+	  bug can't happen again.
+
+	* Fix 「何何」の特別conjunctive rules to only match at the end.
+
+Sat Mar 21 10:53:51 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Eliminate duplicates in the result when we have substring matches.
+
+	* Potential form's rules were completely mangled; they were all
+	  clones of the same version, as if incomplete edited or
+	  something.  I fixed them up, and added another test to the suit.
+          The test suite happened to test the one case that the rest were
+	  cloned from, and 一段動詞, which worked.
+
+	* Anti-infinite-recursion check didn't catch quite all the
+	  possible ways.  Also, in similar circumstances, it could
+	  put duplicates into the result.
+
+	* Add 屋 to other-suffixes, and 半 to other-prefixes.
+
+Fri Mar 20 11:14:00 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Remove punctuation before lookup.
+
+	* Make the windowing code more robust when editing in a tiny
+	  window.
+
+Thu Mar 19 15:03:52 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Canonicalize number expressions.
+
+Tue Mar 17 10:35:45 1992  Per Hammarlund  (perham at perham.nada.kth.se)
+
+	* Added to a regexp in edict-display so that english verbs that
+	have a dictionary entry like /to XXX/ shall be treated as exact
+	matches in the match-list.
+
+	* fixed a small index error in edict-remap-romaji.
+
+Tue Mar 17 10:06:48 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Merged in my changes below into 0.9, and made it 0.9.1
+
+Mon Mar 16 00:28:23 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Prevent infinite recursion if rules have a loop.
+
+	* Add conjunctive form.  (りいしちりいきびみ), and する／ずる／じ
+	る cases.
+
+Mon Mar 16 09:38:44 1992  Per Hammarlund  (perham at perham.nada.kth.se)
+
+	* Set the version to 0.9 and the date to current.
+
+	* Added functions to clean up a eigo string that, for whatever
+	reason has been written in both ASCII and JIS/EUC.  For instance
+	the string "strａｎｇｅ", will be tranformed to plain "strange".
+	The remap relation can be done better, and it should probably be
+	more complete.  How about a complete new nemacs-string* function
+	set!?!
+
+	* Changed the function edict-find-word-at-point that finds an
+	english word to take eigo written in Japanese [ａ-ｚＡ-Ｚ] into
+	account too.
+
+	* Rewrote the version code, more things to be able to keep the
+	date and the version on different variables.
+
+	* Added/rewrote the "Getting Started Guide" in the file edict.el.
+
+	* Started on the documentation. edict.texinfo,  Took out a number
+	of lines from the edict.el file.
+
+	* Changed the name of the variable *private-edict-file* to
+	*edict-private-file*, just to keep variable names consistent.
+
+Mon Mar 16 00:28:23 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Add さん、さま、様、頂く、ちゃん、君、くん
+
+	* Add おる to 助動詞ー１。
+
+	* We have to add 1 to the window height because they include the
+	mode line.  This was hiding the last entry found when there were
+	more than 3 of them!
+
+	*「差し上げる」の仮名形と漢字形
+
+	* Add 形容詞ーからず.
+
+	* 助動詞 から 助動詞ー１…助動詞ー４まで分けてさせた。「差し上げる」
+	をしました。
+
+	* Add the ーず verb endings as alternates to ーない, and
+	add 「せず」の特別ルール
+
+Sun Mar 15 00:01:05 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* 「きて／して」の特別ルール: Fix bug introduced in fixing another
+	bug.
+
+	* Add く to the list of endings that 助動詞 apply to.  This is
+	actually confusing things a bit, but in a way that helps the user.
+	Logically, if an adverb appears before a verb which is sometimes a
+	助動詞, it probably is modifying the verb, not the other way
+	around.  But the user was probably asking about the adverb, since
+	the 助動詞 are all very basic words the user probably knows.  I
+	suppose I could start returning 助動詞 in addition to the main
+	verb, so the user would see these as well.  I suspect this would
+	be more distraction than benefit.  If the user doesn't know the
+	part that was stripped off, he can just mark it, and inquire.
+
+	* Add なる as 助動詞.  Add 漢字形の「来る」と「行く」と「上げる」
+	と「成る」。
+
+	* Be more careful about ordering the results.
+
+	* 「来て／して」の特別ルール
+
+	* Remove debugging notify accidentally left inserted.
+
+	* Allow modifiers rule after 形容動詞.
+
+	* Correct an error in 「くる」の特別ルール.
+
+	* Suppress single-kanji matches unless they're needed.
+
+	* Didn't have anything for handling ーする!!
+
+	* Forgot to drop the おー from humble form.
+
+	* Fix up adjectives once more.
+
+	* fix humble's regexp
+
+	* 敬語の接頭辞 tried to be both prefix and suffix(!)
+
+	* てしまう and でしまう cant be combined after all.
+
+	* Fix incorrect kanji in other-prefixes.
+
+	* Coallesce the てしまう family into a single rule, and make it
+	  properly preserve the て／んで distinction.  No need for
+	  past-tense forms since they're regular; the past-tense rules
+	  will handle it.
+	  
+
+	* Apply the prefixes only to 漢字
+
+	* Added ー員 to suffixes.
+
+	* Add basic affixes used with 名詞。
+
+	* Explicit rules for ーなく、なくて
+
+	* Get 形容詞 negative right, and include more formal varients.
+
+	* 平仮名の「ご」 as honorific prefix, in addition to 御.
+
+	* Remove いた from 助動詞; that gets covered elsewise anyway.
+
+	* Minimum length on 助動詞.
+
+	* Only do command if at least two chars long.
+
+	* Tighten up a couple more rules wrt 一段 only after え行 or い行.
+
+	* Tighten up various rules wrt legal verb endings.  No づ、ず, etc.
+
+	* Typo in 「しよう」の特別ルール, 「来よう」、「こよう」
+
+	* Forgot a few '$'s on the ends of patterns.
+
+	* Add a complete set of volitionals.  This pretty much completes
+	  the morphology.
+
+	* Supply a few more 助動詞 and other endings.
+
+	* Irregular 来たがる、きたがる、したがる
+
+	* Avoid generating く or す as entire words.
+
+	* Fix up いちだんの「たい」を削除する -> 一段の「たい」を削除する
+
+	* Add an 一段動詞 version of the desiderative rule.
+
+	* Added ーたがる to desideratives.
+
+	* Tighten up います。
+
+	* Tightened up adjective rules so they don't go off on くる。
+
+	* Added Irregular 来ます、します。
+
+	* Irregular 来い, しろ
+
+	* Add irregular info for しない, ない.
+
+	* Correct mistaken rule for たない.
+
+Sat Mar 14 16:22:07 1992  Bob Kerns  (rwk at taunton.crl.dec.com)
+
+	* Add edict-test-string.
+
+	* Add debugging feature to edict-expand-string to help track down
+	  what rules do what in the event of surprises.
+
+	* Handle たら as part of the て／た rules.  Faster, and doesn't
+	  generate spurious instance of plain past.
+
+	* Include the zenkaku versions of the punctuation in
+	  *edict-(kanji|eigo)-whitespace*.
+
+	* Clean up some lurking problems in edict-clean-up-(kanji|eigo)
+
+	* Fix a problem with exact matches in the substitution routines.
+
+	* Make edict-expand-string more aggressive in preventing possible
+	  infinite recursion.
+
+	* Add される rule for its irregularity.
+
+	* Add 来られる rule for its irregularity.
+
+	* Add 行く special rule for its irregularity
+
+	*	Additions to improve window handling
+		Add private dictionary, and commands to add to it.
+		Add morphologic analysis so that the dictionary forms
+		of words can be found from inflections/affixes/etc.
+		Add rule for plain negative, plain imperitive.
+		Add rule for desiderative.
+		Make it require cl.el, since I got tired of using a crippled lisp.
+		Use DEFSTRUCT for the rules, and give them names so that
+		you can redefine a rule without having to reload the entire
+		database of rules.
+		Add '#' to the characters that get flushed from kanji words
+		since that's a common inclusion character in fj newsgroups.
+		Split the set out into a variable *edict-kanji-whitespace*
+		to aid in user extensibility.
+		Added rule for 一段動詞 て／た -> る conversion, which
+		I accidentally deleted earlier.
+		Added conditional form for adjectives.
+		Added causitive, passive, 一段動詞 potential
+		Added some more missing 一段動詞 rules, and
+ 		tightened up a number of rules, especially 一段動詞 rules.
+		Upgrade the sorting of exact matches to the top to
+		handle exact matches of dictionary forms produced by
+		the rule set.  For example, 見なくて should have 見る
+		sorted to the top of the list.
+		Updated credits.  Added *edict-eigo-whitespace* like
+		*edict-kanji-whitespace*, and fixed a bug in the code.
+		Added rules for ーちゃう、ーちゃった
+
+Fri Mar 13 17:45:27 1992  Per Hammarlund  (perham at perham.nada.kth.se)
+
+	* Merged Bob's extensions just below into the distribution
+	version.  (Some of the things mentioned right above here,
+	shold be below.)
+
+Fri Mar 13 17:44:06 1992  Bob Kerns (rwk at crl.dec.com)
+
+	* Added functionality to translate verbs and adjectives to a basic
+	form.
+
+Wed Mar 11 09:41:23 1992  Per Hammarlund  (perham at perham.nada.kth.se)
+
+	* Added edict-version and a variable *edict-version* to keep track
+	of the current version of the software.
+
+	* Type checks on the variable *edict-files* in function
+	edict-init.
+
+Tue Mar 10 10:22:21 1992 Bob Kerns (rwk at crl.dec.com)
+
+	* I've fixed some lingering bugs in restoring the window sizes
+	in multi-window mode.
+
+	* I've made it canonicalize whitespace, so that you can select
+	jukugo that wrap around lines, include whitespace, or whatever.
+	Also, multi-word english phrases can include newlines,
+	indentation, etc.
+
+Tue Mar 10 07:11:24 1992  Bob Kerns (rwk at crl.dec.com)
+
+        * I fixed the displaying to not screw up if there's a window above
+	(for example, when using it on fj.* gnus articles it used to
+	gradually grow the Subject window and shrink the Article window).
+
+	* I put giving a positive argument to the searching commands add a
+	new entry.  Locally, I put these commands on m-& and m-*; and if
+	m-& doesn't find a compound, I do c-U m-& and add it.
+
+	* m-- m-& (or whatever) will remove the window.  I did this
+	because c-X 1 is too much; if I was in 2 window mode, I don't want
+	to go to 1 window mode.
+
+	* I made the display show any exact matches before the inexact
+	matches.  So if I do it on 事, I get that line first, instead of
+	buried in amongst all the compounds that sort earlier.
+
+Mon Mar 9 00:00:00 1992  Bob Kerns (rwk at crl.dec.com)
+
+	* This gives you m-X edict-add-english and m-X
+	edict-add-kanji, and automagically maintains a private 
+	dictionary  in *edict-private-file*.
+
+1991, 1992 Per Hammarlund (perham at perham.nada.kth.se)
+
+	* Wrote the bare bones of edict.el.
+

@@ -1,0 +1,19 @@
+(edict
+  (standards-version 1.0
+   version VERSION
+   author-version AUTHOR_VERSION
+   date DATE
+   build-date BUILD_DATE
+   maintainer MAINTAINER
+   distribution mule
+   priority high
+   category CATEGORY
+   dump t
+   description "Lisp Interface to EDICT, Kanji Dictionary"
+   filename FILENAME
+   md5sum MD5SUM
+   size SIZE
+   provides ()
+   requires (REQUIRES)
+   type regular
+))

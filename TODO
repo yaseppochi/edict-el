@@ -1,0 +1,16 @@
+BUGS
+
+1.   [OK] Register some insert [ and edit - can't, are none ] methods.
+2.   [OK] Deal with the case of first entry in the dictionary.
+3.   Give kanjidic entries precedence in list.
+4.   Give private dictionary entries precedence in list.
+5.   Editing does not work when the dictionaries aren't loaded
+     (edict-user-dictionary is unbound).  Probably should also check
+     for existence of edict-buffer.
+6.   Completion of search methods will find insert methods, eg, need to
+     filter in the same way as history.
+
+PRETTIFICATION
+
+1.   Move customizable variables to separate file.
+

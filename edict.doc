@@ -1,0 +1,447 @@
+
+     Copyright (C) 1991, 1992 Per Hammarlund (perham@nada.kth.se)
+
+
+This is documentation for some emacs lisp code that looks for
+translations of English and Japanese using the EDICTJ Public Domain
+Japanese/English dictionary.
+
+Written by Per Hammarlund <perham@nada.kth.se>.
+Morphology and private dictionary handling/editing by Bob Kerns
+<rwk@crl.dec.com>.
+Helpful remarks from Ken-Ichi Handa <handa@etl.go.jp>.
+The EDICTJ PD dictionary is maintained by Jim Breen
+<jwb@monu6.cc.monash.edu.au>.
+
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 1, or (at your option)
+any later version.
+ 
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+ 
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+			     Introduction
+
+This software, called edict, helps nemacs/mule users to use the public
+domain Japanese-English dictionary EDICT.  (It is sometimes called
+EDICTJ, but it is the same thing.)
+
+Edict is a set of functions that it helps you to perform:
+
+* Search for an English word.  With one key command, ie "<ESC>*", the
+English word under or in front of the point is used as the key in a
+search of EDICT.  The matching words are shown in a window that is not
+selected, edict also tries to make the window fit snugly around the
+matches.
+
+* Search for a kanji/kana sequence.  Here you mark a region, and then
+with one key command, ie "<ESC>_", that region is used as the key in a
+search of EDICTJ.  The matches are presented as above.  Edict will
+attempt to transform the character sequence in the region to a "ground
+form", ie verbs will be transformed to their plain present form, eg "
+使って" to "使う", and also "様" and such postfixes will be stripped
+from the sequence, then it will search for the transformed sequence in
+the dictionary.
+
+* Inserting one of the matches of a search into the text in the buffer
+from which the search was initiated.  This is also a key command, ie
+"<ESC>+".  If you perform the command again, the next word in the list
+of matches will be inserted instead.  Edict realizes if the search was
+done for an English or a Japanese word, and inserts accordingly.
+
+* Update a private edict file.  If you give a numeric argument, ie
+C-u, to the two commands above, edict will help you insert this key in
+a private edict file.  The updating is done in an electric mode that
+tries to ensure that the syntax of the file is correct.  Right now the
+input methods EGG and SKK are supported in the electric mode.
+
+Edict is entirely written in emacs lisp.  It has been tested and works
+in Nemacs 3.3.2 and testing has begun in Mule 0.9.2, soon 0.9.3.
+
+		     Short Getting Started Guide
+
+The best way to get started using the software is to install it using
+the install.edict script, if that fails or if you are not to keen to
+use installation scripts with unknown effects, this is the harder, and
+more "error prone" way of doing it.  This text a more talkative
+version of the getting started guide in the edict.el file.
+
+** Installing with install.edict.
+
+Make a new directory to keep the edict software.  Move all the files
+there.  Cd there and run the installation script, eg:
+
+cd /usr/local/src/edict
+./install.edict
+
+** Installing edict yourself
+
+(Indented text includes more information, that you might find useful
+if you are a novice.)
+
+1.  Make sure that you have placed edict.el in a directory that	is
+included in the nemacs's search path, look at the variable "load-path"
+to make sure that the directory is in that list.
+
+	One way to get to see the load-path, is to type
+	"<ESC><ESC>load-path<RETURN>", this will print the value in
+	the mini buffer.  Another way is to print
+	"load-path<LINEFEED>" in a buffer that is in lisp interaction
+	mode, like *scratch* when you start nemacs.
+
+2.  As mentioned above you will, for convenience, want to define what
+keys to use when activating the commands.  To do that you will have to
+add something like this to your .emacs (or .nemacs) file:
+
+---------------- 8< ----------------
+(autoload 'edict-search-english "edict" "Search for a translation of an English word")
+(global-set-key "\e*" 'edict-search-english)
+(autoload 'edict-search-kanji "edict" "Search for a translation of a Kanji sequence")
+(global-set-key "\e_" 'edict-search-kanji)
+(autoload 'edict-insert "edict" "Insert the last translation")
+(global-set-key "\e+" 'edict-insert)
+---------------- 8< ----------------
+
+	The autoload functions tells nemacs what program file to load
+	when a certain function is referenced.  This way the program
+	file does not have to be loaded when nemacs is started, but
+	instead it is started when you first (if at all) use the
+	function.
+
+	The global-set-key maps a sequence of key strokes a function.
+	Global means that it will be valid for all modes.
+
+Note that you can change the key binding to whatever you like, these
+are only "examples".  In your personalized nemacs these three key
+sequences may be taken or you may prefer something else.
+
+	
+3. You have to tell edict where it can find the edict dictionary.
+Preferably, Place the edict dictionary in the standard emacs lisp
+library directory.  If you don't have write access there, put it in
+your ~/emacs directory and make sure that this directory is in the
+load-path list.
+
+	You can add a local emacs directory to load-path by, for
+	instance:
+	(setq load-path (cons (concat (getenv "HOME") "/emacs")
+				      load-path))
+	Note that nemacs searches the load path in a "left to right"
+	order, if you put a file in a directory that appears early in
+	the load-path list, this will be loaded in preference of
+	something appearing a later directory.
+
+The variable *edict-files* should be a list of filenames of edict
+dictionary files that you want edict to load and search in.  The real
+dictionary EDICTJ should be one of these files.  You may also have
+have some local file(s) there, like your friend's private edict files.
+Something like this *may* be appropriate to:
+
+(setq *edict-files*  '("edictj"
+	               "~my-friend-the-user/.edict"
+                       "~my-other-friend-the-user/.edict"))
+
+By default, nemacs searches the load-path (the same directories that
+are searched when you do m-X load-file<return>edict<return>), for a
+file named "edictj".
+
+
+4. Set the name of your *own* local edictj file.  (Note that this file
+should not be included in the list above!)  Edict will include the
+additions that you do in this file.  The variable *edict-private-file*
+defaults to "~/.edict", if you want something else do a:
+
+(setq *edict-private-file* "~/somewhere/somethingelse")
+
+or more sensible
+
+(setq *edict-private-file* "~/emacs/private-edict")
+
+	In UNIX filenames that begin with a "." are "invisible" if you
+	do a plain "ls" command.  If you want to see them you have to
+	do a "ls -a", "-a" for "all".
+
+Don't forget to submit your useful words to Jim Breen once in a while!
+His address is <jwb@monu6.cc.monash.edu.au>.
+
+You are done.  Please report errors and comments to
+<perham@nada.kth.se>.
+
+
+			       Examples
+
+Here we will try to give some examples of how it all works.  These
+examples assume that you are reasonably familiar with nemacs and/or
+mule and that you are familiar with one input method, like EGG or SKK.
+
+In these examples, I will use the default key mappings as described
+above, I hope it is clear what I mean.
+
+* Searching for an English word.
+
+** When to use?
+
+Just some idle suggestions: Either you are a Japanese speaker and you
+want to find what an English word means, or you aren't and you want to
+find out what the Japanese equivalent might be.
+
+Note that you can use M-_ just as well for searching for English text,
+if you want to search for a multi word string.  M-* is just usually
+more convenient.
+
+** How does it work?
+
+When you issue the command, M-*, edict will try to find and English
+word at or in front of the point, much like ispell does. So, for the
+example below, edict will find the word "dictionary" if the point is
+at any of the "^" positions.
+
+	Why would I like to search that dictionary file?
+					^^^^^^^^^^^
+
+If you are not looking at an English character, edict will scan
+backwards until it finds the first English character.
+
+If you place the point somewhere on dictionary, and press M-*, edict
+will ask you this in the mini buffer:
+
+	Translate word (default "dictionary"):
+
+If you hit RETURN, the default, "dictionary", will be used.  If you
+don't like the default, you can type something else in.
+
+Just hit RETURN, then edict will say:
+
+	Searching for word "dictionary"...
+
+and then after a short while it will say, "Found it!", and also
+display an unselected window called "*edict matches*", looking
+something like this:
+---------------- 8< ----------------
+辞書 [じしょ] /dictionary/
+ディクショナリ /dictionary/
+字引 [じびき] /dictionary/
+辞典 [じてん] /dictionary/
+英和 [えいわ] /English-Japanese (e.g. dictionary)/
+広辞苑 [こうじえん] /Kojien (pn) (Japanese Dictionary)/
+電子辞書 [でんしじしょ] /electronic dictionary/
+---------------- 8< ----------------
+
+The matches are sorted so that "clear matches", like the first 4
+above, are at the top.  This is to aid you when you try to find the
+"correct" match.  English verbs that are inserted into the dictionary
+as "/to something/" are also considered to be "clear matches".  So if
+you search for "use", you will get:
+---------------- 8< ----------------
+用いる [もちいる] /to use/to make use of/
+役 [やく] /use/service/role/position/
+採用 [さいよう] /use/adapt/
+行使 [こうし] /use/exercise/
+使う [つかう] /to use/
+用 [よう] /task/business/use/
+用途 [ようと] /use/usefulness/
+仍て [よって] /accordingly/because of/
+両用 [りょうよう] /dual use/
+利用 [りよう] /use (vs)/utilization/
+要因 [よういん] /primary factor/main cause/
+洋館 [ようかん] /western-style house/
+有用 [ゆうよう] /useful (an)/helpful/
+憂さを晴らしに /for amusement/by way of diversion (distraction from grief)/
+---------------- 8< ----------------
+
+and a lot of other matches.  "Clear matches" are at the top, and not
+so clear matches are at the bottom.
+
+** What is an English character?  What is romaji?
+
+When edict tries to find and English word, it will look for something
+that *looks* like and English word.  This means that even strings that
+are in JIS/EUC will be considered to be English text, these will be
+remapped to ASCII before they are used as keys in a search.  Examples
+of English strings:
+
+	string
+	ｓｔｒｉｎｇ
+	ｓｔｒing
+
+These will be remapped to "string" before searching.
+
+
+* Searching for a Japanese string.
+
+Searching for a Japanese string is currently slight more complicated.
+Edict can currently not find the word boundaries in Japanese text.
+(This will change soon, edict will in the future try to make an
+educated guess based on the grammar of the sentence under the point.
+
+	私はedictを使っている。
+                   ^     ^
+		   1     2
+
+Say that you want to search for "使って".  What you have to do is to
+move to the starting char, 1 above, and press C-<SPACE>, nemacs will
+then say, "Mark set", in the mini buffer.  Then you move to the first
+char after the string you want to search for, to 2 above, char "い".
+Now you have marked a region, now you can do the command M-_.  Edict
+will say "Searching for word "使って" and then in rapid sequence show
+the remappings, don't bother about those.  It will find the word "使う
+" in the dictionary and in a separate window display:
+---------------- 8< ----------------
+使う [つかう] /to use/
+---------------- 8< ----------------
+
+This example showed that edict tries to map verbs and adjectives back
+to their plain form.
+
+Edict can also clean up a string from "alien" chars, for instance the
+sequence that you want to search for has been split in a news article
+like this:
+
+		私はedictを使
+>>	っている。
+	
+If you now put the mark at the same chars as before, 使 and い, edict
+will first clean up the string, ie remove the newline and the ">"
+chars and leading white space. Then it will apply the transformation
+rules.  The chars that edict will remove in strings are currently:
+
+"　-〆―-∇ \n\t>;!:#?,.\"/@─-╂",
+
+there are specified in the *edict-kanji-whitespace* variable.  If you
+want other chars, please add to this string, and also tell us what you
+prefer so that it can be incorporated into future releases of edict.
+
+Edict also tries to remove postfixes that carry "no" information, or
+even if they carry information they might not be in the dictionary
+with that (possibly) common postfix.  An example of a postfix is "様".
+Searching for this string:
+
+		田中様
+
+will find:
+---------------- 8< ----------------
+田中 [たなか] /Tanaka (pn)/
+上小田中 [かみこたなか] /Kamikotanaka (pl)/
+下小田中 [しもこたなか] /Shimokotanaka (pl)/
+---------------- 8< ----------------
+
+* Inserting from the list of matches.
+
+What do you do with a match when you have found it?  Obviously, you
+may be reading and using edict to find words that you don't
+understand.  One might also use edict to find words when writing, we
+believe that it is should be convenient for writing both Japanese and
+English.  Again, searching for the word "search" will give you
+
+---------------- 8< ----------------
+探す [さがす] /to search/to seek/to look for/
+サーチ /search/
+探索 [たんさく] /search/
+捜査 [そうさ] /search (vs)/investigation/
+査読 [さどく] /investigative reading/research/
+研究所 [けんきゅうしょ] /research lab/
+研究会 [けんきゅうかい] /research society/
+研究 [けんきゅう] /study (vs)/research/investigation/
+客員研究員 [きゃくいんけんきゅういん] /visiting researcher/
+研究員 [けんきゅういん] /researcher/
+研究開発 [けんきゅうかいはつ] /R&D/research & development/
+研究生 [けんきゅうせい] /research student/
+捜す [さがす] /to seek/to search for/to look for/
+探索木 [たんさくぎ] /search tree/
+---------------- 8< ----------------
+
+If you now hit M-+, edict will insert the first match (探す) at point,
+and then if you hit M-+ again, it will replace the first one it
+inserted with the second.  When it comes to the end of the list it
+wraps.  You can also use this command with a numerical argument,
+getting the nth match in the list, starting with row 1. So C-u 3 M-+
+will give you: "探索".
+
+Edict works similarly for inserting English strings. Searching for "
+探" will give you:
+---------------- 8< ----------------
+探索木 [たんさくぎ] /search tree/
+探求 [たんきゅう] /quest/pursuit/
+手探り [てさぐり] /fumbling (vs)/groping/
+探す [さがす] /to search/to seek/to look for/
+探索 [たんさく] /search/
+探偵 [たんてい] /detective work/
+---------------- 8< ----------------
+
+Doing the insert command will then give you in sequence: "search
+tree", "quest", "pursuit", "fumbling (vs)", etc.  Note that all the
+matching English phrases are used.
+
+* Inserting and entry in the private edict file.
+
+OK, so what do you do if you cannot find a match?  Or what do you do
+if you have a large set of words that you would like to insert into
+the dictionary?
+
+** Searching for a word edict cannot find.
+
+Say that you search for "gazillion", then edict will tell you "No
+matches for key "gazillion".  No you can redo the command, but with a
+numerical argument, ie C-u M-*, then you wind up in a buffer with
+edict electric mode with a newly created entry with the missing word
+at the correct place.  The file in the buffer will be your private
+edict file. So, C-u M-* will give you:
+
+---------------- 8< ----------------
+ [] /gazillion/
+---------------- 8< ----------------
+
+Note now that you are in an "electric" environment, ie some keys do
+specialized things.  TAB will move to the next slot, RETURN will
+create a new entry.  When you move from slot to slot with TAB, edict
+will make sure that the correct input mode is active, ie you can
+insert Japanese in the Japanese slots and english in the english
+slots.  You stop editing your private edict file by doing a save
+command, ie C-x C-s.
+
+I works similarly for an unknown Japanese string.
+
+You can also start these commands by doing M-x edict-add-word, M-x
+edict-add-english, or M-x edict-add-kanji.  The last command has to be
+given a region, as usual with Japanese.
+
+
+
+				 TODO
+
+If you have any suggestions, please state them!  Send them to
+<perham@nada.kth.se>, sending both text and an example of what
+functionality you want is probably best.  If you think about
+contributing code, please make sure that you have the most recent
+version of edict.el before you start to hack around in it!  Apart from
+that, to minimize wasted efforts and difficult merging sessions,
+please contribute code.
+
+* Edict will (quite) soon make an educated guess at what it is that
+you want to translate, search for, when you are looking at a
+Kanji/Kana characters.  It will basically improve the forward-word
+backward-word functionality, since it does not work on Japanese text.
+When this starts to work, most searches will be performed with "M-*".
+This will simplify the user interface.
+
+* Edict will have (more) functionality for "intext replacement" of
+what one translated.  This is convenient when writing for both
+speakers of Japanese and English.
+
+			     Silly Index
+
+Phrases that you might be wondering about.
+
+* More edict dictionaries, Short Getting Started Guide.
+
+* Input methods, EGG and SKK, and where to find them.
+
