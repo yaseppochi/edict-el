@@ -2,3 +2,4 @@ _pkg.el
 auto-autoloads.el
 custom-load.el
 package-info
+pdepends.mk
