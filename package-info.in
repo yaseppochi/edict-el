@@ -1,5 +1,5 @@
 (edict
-  (standards-version 1.0
+  (standards-version 1.1
    version VERSION
    author-version AUTHOR_VERSION
    date DATE
