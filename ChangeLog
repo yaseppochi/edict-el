@@ -1,3 +1,12 @@
+2003-03-09  Ben Wing  <ben@xemacs.org>
+
+	* Makefile (COMPATIBILITY_FLAGS):
+	* Makefile (compile): Removed.
+	* Makefile (binkit): Removed.
+	Delete explicit compile:: and binkit: rules.
+	Don't add custom-load.elc to the list of generated elc's.
+	Delete code to error when no Mule (now automatic).
+
 2002-12-07  Ville Skyttä  <scop@xemacs.org>
 
 	* .cvsignore: Remove files now handled automatically by CVS.
