@@ -39,20 +39,3 @@ DATA_DEST = $(PACKAGE)
 COMPATIBILITY_FLAGS = -eval "(setq byte-compile-print-gensym nil)"
 
 include ../../XEmacs.rules
-
-GENERATED += custom-load.elc
-
-ifeq ($(BUILD_WITHOUT_MULE),)
-
-compile:: auto-autoloads.elc $(ELCS) custom-load.elc
-
-binkit: binkit-common
-
-else
-compile::
-	@echo Edict requires XEmacs/Mule to build
-
-# Noop
-binkit:
-
-endif
