@@ -1,3 +1,120 @@
+2002-01-30  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* edict-english.el:
+	* edict-japanese.el:
+	* edict.el:
+	Update version to 0.9.9.
+
+	* README:
+	* TODO:
+	* edict.el:
+	Change a couple of `FSF's to `GNU's.
+
+	* edict.el (edict-dictionary-path): Correct Customize initialization.
+
+	* Makefile (DATA_FILES): Add the 0.9.6 docs per README.
+
+2002-01-29  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* README: Update copyrights, version, create NEWS section.
+
+	* edict-edit.el: 
+	* edict-morphology.el:
+	Update version and copyrights (especially Bob Kerns).
+
+	* Makefile (EXTRA_SOURCES): Add Makefile.GNU so GNU Emacs users
+	can use the bindist package.
+	(DATA_FILES): Add README.
+
+	* edict-update.el (edict-update): Implement.  Improve docstring.
+
+	* edict.el (edict-dictionary-path): Fix docstring and Customize type.
+
+2002-01-28  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* dui.el (dl-indicator-string): Renamed to dl-mode-line-string.
+	(dl-mode-line-string): New name for dl-indicator-string.
+
+	(dui-method-alist): 
+	(dl-mode-hook): 
+	(dl-mode-prefix):
+	Conform to * convention for user variables.
+
+	(dl): New group.
+	(dl-mode-line-string): 
+	(dl-conflict-warning):
+	(dl-warn-conflict-verbosity):
+	(dui-warn-previously-registered-methods-p):
+	Easy Customizations done.
+
+	* edict-edit.el (*brackets-allowed-in-english*):
+	(edict-verbose-electric-henkan):
+	(edict-use-electric-henkan):
+	Easy Customizations done.
+
+	* edict-morphology.el (*edict-expand-string-trace*): Move to top.
+
+	* ts-mode.el (ts-mode-prefix):
+	(ts-mode-hook):
+	Conform to * convention for user variables.
+
+	(ts-conflict-warning):
+	(ts-warn-conflict-verbosity):
+	Easy Customizations done.
+
+2002-01-27  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* Makefile: Add copyright notice and update email address.
+
+	(ELCS):
+	(DATA_FILES):
+	edictj.demo is data, not source.
+
+	(GENERATED):
+	(all):
+	Handle custom-load.el.
+
+	* dui.el:
+	* dui-registry.el:
+	* edict-edit.el:
+	* edict-english.el:
+	* edict-japanese.el:
+	* edict-morphology.el:
+	* ts-mode.el:
+	Update copyright notice and email address.
+
+	* edict.el: Update Commentary, copyright notice, email address.
+
+	(edict-match-buffer): Add docstring.
+
+	(edict): New Custom group.
+	(edict-default-coding-system): 
+	(edict-user-dictionary): 
+	(edict-dictionary-path): 
+	(edict-dictionaries): 
+	(edict-buffer-name): 
+	(edict-match-buffer-name): 
+	(edict-warn-missing-dictionaries-p): 
+	(*edict-window-location*):
+	Customize.
+
+	(*edict-romaji-remaps*): Initialize, not setq; defvar -> defconst.
+
+	(edict-version-date):
+	(edict-version):
+	(*edict-file-begin-marker*):
+	(*edict-file-end-marker*):
+	(*edict-kanji-whitespace*): 
+	(*edict-eigo-whitespace*): 
+	(*edict-unreadable-error*): 
+	(*edict-unreadable-error*): 
+	Change defvars to defconsts.
+
+	* edict-update.el: New file.
+	(edict-update): New custom group.
+
+	* Makefile.GNU: Renamed from Makefile.FSF.
+
 2000-11-08  Steve Youngs  <youngs@xemacs.org>
 
 	* package-info.in (description): Add "MULE" to description.

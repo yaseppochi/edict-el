@@ -1,8 +1,8 @@
 ;;; dui-registry.el --- Registry of dui dictionary methods
 
-;; Copyright (C) 1998 by Stephen J. Turnbull
+;; Copyright (C) 1998 Free Software Foundation
 
-;; Author:      Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+;; Author:      Stephen J. Turnbull <stephen@xemacs.org>
 ;; Keywords:    mule, dictionary
 ;; Version:     0.6
 
@@ -28,7 +28,7 @@
 
 ;;; Changelog:
 
-;; 1998-04-08  Stephen Turnbull  <turnbull@sk.tsukuba.ac.jp>
+;; 1998-04-08  Stephen Turnbull  <stephen@xemacs.org>
 ;;        (created):  broken out from edict.el
 
 ;;; Code:

@@ -1,12 +1,13 @@
 ;; edict.el --- Word lookup (with deinflection) in EDICT
 
 ;; Copyright (C) 1991, 1992 Per Hammarlund (perham@nada.kth.se)
+;; Copyright (C) 1998, 2002 Free Software Foundation, Inc.
 
 ;; Author:      Per Hammarlund <perham@nada.kth.se>
 ;; Keywords:    mule, edict, dictionary
-;; Version:     0.9.8
-;; Adapted-by:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp> for XEmacs
-;; Maintainer:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+;; Version:     0.9.9
+;; Adapted-by:  Stephen J. Turnbull <stephen@xemacs.org> for XEmacs
+;; Maintainer:  Stephen J. Turnbull <stephen@xemacs.org>
 
 ;;   This file is part of XEmacs.
 
@@ -26,20 +27,31 @@
 
 ;;; Commentary:
 
-;; Some code that looks for translations of english and japanese using the
-;; EDICTJ Public Domain japanese/english dictionary.
+;; Search for translations of English or Japanese terms in Jim Breen's
+;; EDICT free Japanese/English dictionary.
+
+;; GNU Emacs-compatible editors including GNU Emacs versions 20 and 21
+;; and XEmacs versions 20 and 21 when configured with Mule are supported.
+;; This version is packaged for easy installation and management in XEmacs
+;; versions 21 and above.
 
 ;; Written by Per Hammarlund <perham@nada.kth.se>
 ;; Morphology and private dictionary handling/editing by Bob Kerns
 ;; <rwk@crl.dec.com>
 ;; Helpful remarks from Ken-Ichi Handa <handa@etl.go.jp>.
-;; The EDICTJ PD dictionary is maintained by Jim Breen
-;; <jwb@monu6.cc.monash.edu.au>
+;; The EDICT dictionary is maintained by Jim Breen <jwb@monu6.cc.monash.edu.au>
 
 ;; Short getting started guide, this assumes that you have not used
 ;; the install script and that you understand the "technical" words
 ;; used, if you don't, please read the documentation in edict.doc:
 
+;; 0. You need a *Japanese-capable Emacs*.  Previous versions of this package
+;;    worked with NEmacs and Emacs with the Mule patchkit, but it is unknown
+;;    whether this version does.  They are not supported, but if you must use
+;;    early versions feel free to ask the maintainers for help.
+;;    You need a *recent version of Per Abrahamsen's "Customize" library."
+;;    You can work around by changing all the `defcustom' calls to `defvar'
+;;    
 ;; 1. Make sure that you have placed edict.el in a directory that is
 ;;    included in the nemacs's search path, look at the variable
 ;;    "load-path" to make sure that the directory is in that list.
@@ -127,7 +139,7 @@
 ;;
 ;; A full ChangeLog is provided as a separate file.
 ;;
-;;      0.9.8          FSF and XEmacs-21 compatibility release
+;;      0.9.8          GNU Emacs and XEmacs 21 compatibility release
 ;;      0.9.7          XEmacs-beta beta release
 ;;	0.9.6-sjt-0.1  Modifications provided by Steven Baur and Olivier
 ;;		       Galibert to get it to compile; the character
@@ -141,6 +153,13 @@
 
 ;;; Code:
 
+;;; User customization
+
+(defgroup edict nil
+  "Per Hammarlund's edict.el interface to Jim Breen's EDICT,
+an English-Japanese dictionary."
+  :group 'mule)
+
 ;; Require standard XEmacs packages.
 
 (require 'cl)
@@ -153,73 +172,87 @@
 
 ;;; Variables:
 
-(defvar edict-version-date "980524 [平成10年5月24日(木)]"
+(defconst edict-version-date "980524 [平成10年5月24日(木)]"
   "The variable edict-version-date contains a string with the
 date when this version was released.  In both Swedish and Japanese
 standards.")
 
-(defvar edict-version "0.9.8"
+(defconst edict-version "0.9.8"
  "The variable edict-version contains a string that describes
  what version of the edict software that you are running.")
 
-(defvar edict-default-coding-system 'euc-jp
+(defcustom edict-default-coding-system 'euc-jp
   "Default coding system for reading dictionary files.
 
 On Unix systems, EDICT is distributed as an EUC file.  For Windows systems
-'shift_jis is may be preferable.")
+'shift_jis is may be preferable."
+  :type 'symbol
+  :group 'edict)
 
-(defvar edict-user-dictionary "~/.edict"
+(defcustom edict-user-dictionary "~/.edict"
   "*This is the edict dictionary where the user's entries will be added.
 
 May be a string (filename), or a cons of a filename and a symbol
-(coding system).  Will be searched first in dictionary lookup.")
+\(coding system).  Will be searched first in dictionary lookup."
+  :type '(choice file (cons file symbol))
+  :group 'edict)
 
-;; Search paths and how to create them vary by Emacs version.
-;; This is really ugly.
-(defvar edict-dictionary-path
-  (let (path)
-    (cond
-     ;; XEmacs 21
-     ((and (fboundp 'locate-data-directory)
-	   (setq path (cond ((locate-data-directory "edict"))
-			    ((locate-data-directory ""))))))
-     ;; the FSF's Emacs and XEmacs 20
-     (t (dolist (dir
-		 ;; Use data-directory and package-path
-		 (cons data-directory
-		       ;; early betas of XEmacs 21 and betas of XEmacs 20.3
-		       ;; and 20.4 used package-path; "undocumented
-		       ;; feature" in 20.3 and 20.4 releases
-		       (mapcar
-			;; nil components of package-path stay nil
-			(lambda (dir) (if dir
-					  ;; don't add package roots
-					  (concat dir "etc/")))
-			(reverse (if (boundp 'package-path) package-path))))
-		 path)
-	  (if (and dir			; drop nil components of package-path
-		   (eq (car (file-attributes dir)) t))
-	      (progn (setq path (cons dir path))
-		     (let ((file (expand-file-name "edict" dir)))
-		       (if (eq (car (file-attributes file)) t)
-			   (setq path (cons file path)))))))))
-    (cond ((stringp path) (list path))
-	  ((null path)
-	   (message "Couldn't compute default for `edict-dictionary-path'!")
-	   nil)
-	  ((listp path) path)
-	  (t (message
-	      "Error in computing default for `edict-dictionary-path'!"))))
-  "Search path for edict dictionaries.
+;; Search paths
+(defcustom edict-dictionary-path nil
+  "List of directories to search for edict dictionaries.
 
-The default value is the edict subdirectory of the package data-directory,
-or if that is missing the package data-directory.  Computed using
-`locate-data-directory' if available, or `package-path' (if available)
-and `data-directory'.
+The default value contains only the edict subdirectory of the package
+data-directory, or if that is missing the package data-directory itself.
+Computed using `locate-data-directory' if available, or `package-path' (if
+available) and `data-directory'.
 
-Will not find `<package-root>/<package>/etc'-style data directories.")
+Will not find `<package-root>/<package>/etc'-style data directories."
+  :type '(repeat directory)
+  ;; How to create them vary by Emacs version.
+  ;; This is really ugly.
+  :initialize
+  (lambda (symbol ignored)
+    (unless (default-boundp symbol)
+      (set-default symbol
+        (let (path)
+	  (cond
+	   ;; XEmacs 21
+	   ((and (fboundp 'locate-data-directory)
+		 (setq path (cond ((locate-data-directory "edict"))
+				  ((locate-data-directory ""))))))
+	   ;; GNU Emacs and XEmacs 20
+	   (t (dolist
+		  (dir
+		   ;; Use data-directory and package-path
+		   (cons data-directory
+			 ;; early betas of XEmacs 21 and betas of XEmacs 20.3
+			 ;; and 20.4 used package-path; "undocumented
+			 ;; feature" in 20.3 and 20.4 releases
+			 (mapcar
+			  ;; nil components of package-path stay nil
+			  (lambda (dir) (if dir
+					    ;; don't add package roots
+					    (concat dir "etc/")))
+			  (reverse (if (boundp 'package-path) package-path))))
+		   path)
+		(if (and dir		; drop nil components of package-path
+			 (eq (car (file-attributes dir)) t))
+		    (progn (setq path (cons dir path))
+			   (let ((file (expand-file-name "edict" dir)))
+			     (if (eq (car (file-attributes file)) t)
+				 (setq path (cons file path)))))))))
+	  (cond
+	   ((stringp path) (list path))
+	   ((null path)
+	    (message
+	     "Couldn't compute default for `edict-dictionary-path'!")
+	    nil)
+	   ((listp path) path)
+	   (t (message
+	       "Error in computing default for `edict-dictionary-path'!")))))))
+  :group 'edict)
 
-(defvar edict-dictionaries '("edict")
+(defcustom edict-dictionaries '("edict")
   "*List of edict dictionary specifications.
 
 A dictionary specification is either a string (file name), or a cons
@@ -235,17 +268,25 @@ database) may be used.
 
 The up-to-date versions of these dictionaries are all available from
 ftp://ftp.monash.edu.au/pub/nihongo.  A very small sample dictionary,
-edictj.demo, is provided with this package.")
+edictj.demo, is provided with this package."
+  :type '(choice string (cons string symbol))
+  :group 'edict)
 
+;;The edict dictionary buffer and its name
 (defvar edict-buffer nil
   "The buffer containing the concatenated dictionaries.")
+(defcustom edict-buffer-name "*edict*"
+  "The name of `edict-buffer', default \"*edict*\"."
+  :type 'string
+  :group 'edict)
 
-(defvar edict-buffer-name "*edict*"
-  "The name of `edict-buffer'.")
-
-;;The edict matches buffer and the name of it
-(defvar edict-match-buffer-name "*edict matches*")
-(defvar edict-match-buffer nil)
+;;The edict matches buffer and its name
+(defvar edict-match-buffer nil
+  "The buffer displaying search results.")
+(defcustom edict-match-buffer-name "*edict matches*"
+  "The name of `edict-match-buffer', default \"*edict matches*\"."
+  :type 'string
+  :group 'edict)
 
 ;; #### is this appropriate?
 ;;;###autoload
@@ -257,8 +298,8 @@ at the moment.  The same string is also returned from the function."
    (message (concat "Edict version " edict-version  " of " edict-version-date)))
 
 ;; Marker so we can find the individual files in the buffer.
-(defvar *edict-file-begin-marker* "<<<<<<<<<<<<<<<<")
-(defvar *edict-file-end-marker* ">>>>>>>>>>>>>>>>")
+(defconst *edict-file-begin-marker* "<<<<<<<<<<<<<<<<")
+(defconst *edict-file-end-marker* ">>>>>>>>>>>>>>>>")
 
 ;; This is the set of characters to be ignored in the middle of kanji
 ;; words being looked up.
@@ -275,7 +316,7 @@ at the moment.  The same string is also returned from the function."
 ;;	possibly with a customizable option to reverse the sense of
 ;;	the arg.
 
-(defvar *edict-kanji-whitespace* "　-〆―-∇ \n\t>;!:#?,.\"/@─-╂")
+(defconst *edict-kanji-whitespace* "　-〆―-∇ \n\t>;!:#?,.\"/@─-╂")
 
 ;; This is the set of characters to be ignored in the middle of english
 ;; words being looked up.
@@ -284,15 +325,15 @@ at the moment.  The same string is also returned from the function."
 ;; in the regexp code.
 ;; #### Maybe it's better to filter for `not-eigo'?  Check the code.
 
-(defvar *edict-eigo-whitespace* "　-〆―-∇ \n\t>;!:#?,.\"/@─-╂")
+(defconst *edict-eigo-whitespace* "　-〆―-∇ \n\t>;!:#?,.\"/@─-╂")
 
 ;; #### This possibly is not correct as it will miss hyphenated words.
 ;; #### Can we just steal from ispell?
-(defvar *edict-eigo-characters* "[A-Za-zＡ-Ｚａ-ｚ]"
+(defconst *edict-eigo-characters* "[A-Za-zＡ-Ｚａ-ｚ]"
   "These are the characters that eigo is made up of.")
 
 ;; #### These errors should be warnings.
-(defvar *edict-unreadable-error*
+(defconst *edict-unreadable-error*
   "Edict file \"%s\": doesn't exist or isn't readable!")
 
 ;(defvar *edict-non-existent-error*
@@ -304,8 +345,10 @@ at the moment.  The same string is also returned from the function."
 (defconst edict-bad-dict-spec
   "In edict-dictionaries: %s - not string or cons.")
 
-(defvar edict-warn-missing-dictionaries-p t
-  "Warn about dictionaries specified in edict-dictionaries but not found.")
+(defcustom edict-warn-missing-dictionaries-p t
+  "Warn about dictionaries specified in edict-dictionaries but not found."
+  :type 'boolean
+  :group 'edict)
 
 (defvar edict-missing-dictionaries nil
   "List of dictionaries not found at initialization.")
@@ -329,7 +372,7 @@ string component of DICT-SPEC.  Return 'nil if not found and readable."
 	   (if (not (and (stringp (setq filename (car dict-spec)))
 			 (coding-system-p
 			  (setq coding-system
-				;; #### no `find-coding-system' in FSF's Emacs
+				;; #### no `find-coding-system' in GNU Emacs
 				(if (fboundp 'find-coding-system)
 				    (find-coding-system (cdr dict-spec))
 				  (cdr dict-spec))))))
@@ -464,17 +507,16 @@ If FILENAME is nil, do nothing (cf. edict-regularize-file-argument)."
       (setq loc (setq start (match-end 0))))
     (concat result (substring key loc))))
 
-;; #### Why isn't this a defconst?  Why strings and not characters?
-(defvar *edict-romaji-remaps* nil)
-(setq *edict-romaji-remaps* 
-      '(("ａ" . "a") ("ｂ" . "b") ("ｃ" . "c") ("ｄ" . "d") ("ｅ" . "e") ("ｆ" . "f") ("ｇ" . "g")
-	("ｈ" . "h") ("ｉ" . "i") ("ｊ" . "j") ("ｋ" . "k") ("ｌ" . "l") ("ｍ" . "m")
-	("ｎ" . "n") ("ｏ" . "o") ("ｐ" . "p") ("ｑ" . "q") ("ｒ" . "r") ("ｓ" . "s") ("ｔ" . "t")
-	("ｕ" . "u") ("ｖ" . "v") ("ｗ" . "w") ("ｘ" . "x") ("ｙ" . "y") ("ｚ" . "z")
-	("Ａ" . "A") ("Ｂ" . "B") ("Ｃ" . "C") ("Ｄ" . "D") ("Ｅ" . "E") ("Ｆ" . "F") ("Ｇ" . "G")
-	("Ｈ" . "H") ("Ｉ" . "I") ("Ｊ" . "J") ("Ｋ" . "K") ("Ｌ" . "L") ("Ｍ" . "M")
-	("Ｎ" . "N") ("Ｏ" . "O") ("Ｐ" . "P") ("Ｑ" . "Q") ("Ｒ" . "R") ("Ｓ" . "S") ("Ｔ" . "T")
-	("Ｕ" . "U") ("Ｖ" . "V") ("Ｗ" . "W") ("Ｘ" . "X") ("Ｙ" . "Y") ("Ｚ" . "Z")))
+;; #### Why strings and not characters?
+(defconst *edict-romaji-remaps*
+  '(("ａ" . "a") ("ｂ" . "b") ("ｃ" . "c") ("ｄ" . "d") ("ｅ" . "e") ("ｆ" . "f") ("ｇ" . "g")
+    ("ｈ" . "h") ("ｉ" . "i") ("ｊ" . "j") ("ｋ" . "k") ("ｌ" . "l") ("ｍ" . "m")
+    ("ｎ" . "n") ("ｏ" . "o") ("ｐ" . "p") ("ｑ" . "q") ("ｒ" . "r") ("ｓ" . "s") ("ｔ" . "t")
+    ("ｕ" . "u") ("ｖ" . "v") ("ｗ" . "w") ("ｘ" . "x") ("ｙ" . "y") ("ｚ" . "z")
+    ("Ａ" . "A") ("Ｂ" . "B") ("Ｃ" . "C") ("Ｄ" . "D") ("Ｅ" . "E") ("Ｆ" . "F") ("Ｇ" . "G")
+    ("Ｈ" . "H") ("Ｉ" . "I") ("Ｊ" . "J") ("Ｋ" . "K") ("Ｌ" . "L") ("Ｍ" . "M")
+    ("Ｎ" . "N") ("Ｏ" . "O") ("Ｐ" . "P") ("Ｑ" . "Q") ("Ｒ" . "R") ("Ｓ" . "S") ("Ｔ" . "T")
+    ("Ｕ" . "U") ("Ｖ" . "V") ("Ｗ" . "W") ("Ｘ" . "X") ("Ｙ" . "Y") ("Ｚ" . "Z")))
 
 ;;
 ;; Lookup a mapping for zenkaku roman characters to ASCII.
@@ -728,9 +770,11 @@ If there are no matches this string will be nil."
       (setq *edict-previous-configuration* (current-window-configuration))))
 
 ;; This doesn't work yet; leave it set to 'top!
-(defvar *edict-window-location* 'top
+(defcustom *edict-window-location* 'top
   "*Location to place edict matches window.  top or bottom.
-Doesn't work yet.")
+Doesn't work yet."
+  :type '(const top)
+  :group 'edict)
 
 (defun edict-display (key-list match-list)
   "Edict-display displayes the strings in a separate window that is
@@ -991,7 +1035,7 @@ use the Nth possibility."
       ;; split the space among several windows.
       (if (featurep 'xemacs)
 	  (delete-window window)
-	;; #### The following code is _not_ known to work in recent FSF Emacs :-(
+	;; #### The following is _not_ known to work in recent GNU Emacs :-(
 	(let* ((selected (selected-window))
 	       (next (previous-window window))
 	       (height (window-height window))

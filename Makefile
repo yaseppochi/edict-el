@@ -1,5 +1,7 @@
 # Makefile for Edict
 
+# Copyright (C) 1998, 2002 Free Software Foundation, Inc.
+
 # This file is part of XEmacs.
 
 # XEmacs is free software; you can redistribute it and/or modify it
@@ -18,25 +20,31 @@
 # Boston, MA 02111-1307, USA.
 
 VERSION = 1.12
-AUTHOR_VERSION = 0.9.8
-MAINTAINER = Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+AUTHOR_VERSION = 0.9.9
+MAINTAINER = Stephen J. Turnbull <stephen@xemacs.org>
 PACKAGE = edict
 PKG_TYPE = regular
 REQUIRES = mule-base xemacs-base
 CATEGORY = mule
 
-EXTRA_SOURCES = edictj.demo ts-mode.el
-
 ELCS = edict.elc dui.elc edict-morphology.elc edict-japanese.elc \
-       edict-english.elc edict-edit.elc edict-test.elc dui-registry.elc
+       edict-english.elc edict-edit.elc edict-update.elc \
+       edict-test.elc dui-registry.elc
+
+EXTRA_SOURCES = ts-mode.el Makefile.GNU
+DATA_FILES = edictj.demo README \
+             ChangeLog.096 README.096 edict.doc.096
+DATA_DEST = $(PACKAGE)
 
 COMPATIBILITY_FLAGS = -eval "(setq byte-compile-print-gensym nil)"
 
 include ../../XEmacs.rules
 
+GENERATED += custom-load.elc
+
 ifeq ($(BUILD_WITHOUT_MULE),)
 
-all:: $(ELCS) auto-autoloads.elc
+all:: auto-autoloads.elc $(ELCS) custom-load.elc
 
 srckit: srckit-std
 

@@ -1,12 +1,13 @@
 ;;; edict-edit.el --- Edit an EDICT dictionary.
 
 ;; Copyright (C) 1991, 1992 Per Hammarlund (perham@nada.kth.se)
+;; Copyright (C) 1998, 2002 Free Software Foundation, Inc.
 
 ;; Author:      Per Hammarlund <perham@nada.kth.se>
 ;; Keywords:    mule, edict, dictionary
-;; Version:     0.9.8
-;; Adapted-by:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp> for XEmacs
-;; Maintainer:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+;; Version:     0.9.9
+;; Adapted-by:  Stephen J. Turnbull <stephen@xemacs.org> for XEmacs
+;; Maintainer:  Stephen J. Turnbull <stephen@xemacs.org>
 
 ;;   This file is part of XEmacs.
 
@@ -46,13 +47,25 @@
 
 ;;; Customizable variables
 
-(defvar edict-use-electric-henkan nil
-  "Determines whether to use electric henkan mode in edict buffers.
+;; #### does this tristate make sense with Customize support?
+(defcustom edict-use-electric-henkan nil
+  "*Determines whether to use electric henkan mode in edict buffers.
 
-If t, use it; if nil, don't use it.  If 'ask, ask and (re)set the flag.")
+If t, use it; if nil, don't use it.  If 'ask, ask and (re)set the flag."
+  :type '(choice (const :tag "yes" t)
+		 (const :tag "no" nil)
+		 (const :tag "ask and set flag for this session" ask))
+  :group 'edict)
 
-(defvar edict-verbose-electric-henkan t
-  "If non-nil, warns the user of electric changes in henkan state.")
+(defcustom edict-verbose-electric-henkan t
+  "*If non-nil, warns the user of electric changes in henkan state."
+  :type 'boolean
+  :group 'edict)
+
+(defcustom *brackets-allowed-in-english* nil
+  "*Allow brackets in the english section of dictionary entries, if non-null."
+  :type 'boolean
+  :group 'edict)
 
 ;;; Internal variables
 
@@ -378,9 +391,6 @@ we're in the right mode."
 	(if complete
 	    (re-search-forward "/[^/\n]+/" end t)
 	  (re-search-forward "/" end t))))))
-
-(defvar *brackets-allowed-in-english* nil
-  "*Allow brackets in the english section of dictionary entries, if non-null.")
 
 (defun edict-open-bracket ()
   "Begin editing the yomi section of the entry, at the beginning of the entry.

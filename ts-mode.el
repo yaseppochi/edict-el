@@ -1,8 +1,8 @@
 ;;; ts-mode.el --- Insert time-stamps in buffers
 
-;; Copyright (C) 1998 by Stephen J. Turnbull
+;; Copyright (C) 1998, 2002 by Free Software Foundation, Inc.
 
-;; Author:      Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+;; Author:      Stephen J. Turnbull <stephen@xemacs.org>
 ;; Keywords:    minor mode
 ;; Version:     1.0
 ;; Created:     Sun Apr  5 19:49:36 1998
@@ -35,7 +35,7 @@
 
 ;;; Changelog:
 
-;; 1998-04-05  Stephen Turnbull  <turnbull@sk.tsukuba.ac.jp>
+;; 1998-04-05  Stephen Turnbull  <stephen@xemacs.org>
 ;;        tm-mode.el:  created
 
 ;;; Code
@@ -44,26 +44,33 @@
 
 ;;; User customization variables
 
+;; #### Is this really worth cluttering up Customize with?
+;;(defgroup 'time-stamp nil)
+
+;; #### Provide Customize interface someday....
 (defvar ts-mode-prefix '[(control ?c) (?\$)]
-  "Prefix key sequence for ts-mode command keys.
+  "*Prefix key sequence for ts-mode command keys.
 
 After loading, change the mode's prefix by using ts-mode-set-prefix;
 setq'ing this variable can't work.")
 
 ;; A convention for modes; here honored by observance, not breach.
 (defvar ts-mode-hook nil
-  "If you can think of a use for this, you're more clever than I.")
+  "*If you can think of a use for this, you're more clever than I.")
 
 ;; Auxiliary customizations
 
-(defvar ts-conflict-warning "Binding conflict: %s -> %s."
-  "Format string warning about key sequences with conflicting bindings.
+(defcustom ts-conflict-warning "Binding conflict: %s -> %s."
+  "*Format string warning about key sequences with conflicting bindings.
 
 Must contain two `%s' descriptors.  The first formats the key sequence,
-the second the description of the existing binding.")
+the second the description of the existing binding."
+  :type 'string
+;  :group 'time-stamp
+  )
 
-(defvar ts-warn-conflict-verbosity 3
-  "Controls verbosity of binding conflict warnings.
+(defcustom ts-warn-conflict-verbosity 3
+  "*Controls verbosity of binding conflict warnings.
 
 0   turns off warnings entirely.
 1   issues a warning for each binding conflict (including sub-keymaps).
@@ -71,7 +78,10 @@ the second the description of the existing binding.")
     sub-keymaps, only keys in those maps that have conflicts).
 3   adds verbose detail about what is being done.
 
-Each positive level performs all actions of lower levels.")
+Each positive level performs all actions of lower levels."
+  :type 'integer
+;  :group 'time-stamp
+  )
 
 ;;; The basic mode conventions.
 

@@ -1,8 +1,8 @@
 ;;; dui.el --- Dictionary user interface
 
-;; Copyright (C) 1998 by Stephen J. Turnbull
+;; Copyright (C) 1998, 2002 Free Software Foundation, Inc.
 
-;; Author:      Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+;; Author:      Stephen J. Turnbull <stephen@xemacs.org>
 ;; Keywords:    mule, dictionary
 ;; Version:     0.6
 
@@ -33,7 +33,7 @@
 
 ;;; Changelog:
 
-;; 1998-03-27  Stephen Turnbull  <turnbull@sk.tsukuba.ac.jp>
+;; 1998-03-27  Stephen Turnbull  <stephen@xemacs.org>
 ;;        (created):  broken out from monolithic edict.el
 
 ;;; Code:
@@ -42,34 +42,45 @@
 
 ;; User customization variables
 
+(defgroup dl nil
+  "Customization group for dl-mode interface to edict.el."
+  :group 'edict)
+
+;; #### Customize me later!
 (defvar dl-mode-prefix '[(control ?c) (?\$)]
-  "Prefix key sequence for dl-mode command keys.
+  "*Prefix key sequence for dl-mode command keys.
 
 After loading, change the mode's prefix by using dl-mode-set-prefix;
 setq'ing this variable can't work.")
 
-(defvar dl-indicator-string " dl"
-  "String indicating activation of dl minor mode in the modeline.
+(defcustom dl-mode-line-string " dl"
+  "*String indicating activation of dl minor mode in the modeline.
 
-Set to nil to inhibit modeline display.")
+Set to nil to inhibit modeline display."
+  :type '(choice string
+		 (const :tag "none" nil))
+  :group 'dl)
 
 ;; A convention for modes; here honored by observance, not breach.
 ;;
 (defvar dl-mode-hook nil
-  "A normal hook called at the end of the dl-mode activation process.
+  "*A normal hook called at the end of the dl-mode activation process.
 
 If you can think of a use for this, you're more clever than I.")
 
 ;; Auxiliary customizations
 
-(defvar dl-conflict-warning "Binding conflict: %s -> %s."
-  "Format string warning about key sequences with conflicting bindings.
+(defcustom dl-conflict-warning "Binding conflict: %s -> %s."
+  "*Format string warning about key sequences with conflicting bindings.
 
 Must contain two `%s' descriptors.  The first formats the key sequence,
-the second the description of the existing binding.")
+the second the description of the existing binding."
+  :type 'string
+  :group 'dl)
 
-(defvar dl-warn-conflict-verbosity 3
-  "Controls verbosity of binding conflict warnings.
+;; #### Add code to check that the level is OK?
+(defcustom dl-warn-conflict-verbosity 3
+  "*Controls verbosity of binding conflict warnings.
 
 0   turns off warnings entirely.
 1   issues a warning for each binding conflict (including sub-keymaps).
@@ -77,7 +88,9 @@ the second the description of the existing binding.")
     sub-keymaps, only keys in those maps that have conflicts).
 3   adds verbose detail about what is being done.
 
-Each positive level performs all actions of lower levels.")
+Each positive level performs all actions of lower levels."
+  :type 'integer
+  :group 'dl)
 
 ;; The basic mode conventions.
 
@@ -226,13 +239,15 @@ since dl-mode is a global variable)."
 ;; `add-minor-mode' doesn't exist in Emacs 20.2  :-(
 (or (assq 'dl-mode minor-mode-alist)
     (setq minor-mode-alist
-	  (cons (list 'dl-mode dl-indicator-string) minor-mode-alist)))
+	  (cons (list 'dl-mode dl-mode-line-string) minor-mode-alist)))
 (dl-mode-set-prefix dl-mode-prefix)
 
 ;;; end of dictionary lookup minor mode
 
-(defvar dui-warn-previously-registered-methods-p t
-  "Warn about previously registered methods.")
+(defcustom dui-warn-previously-registered-methods-p t
+  "*Warn about previously registered methods."
+  :type 'boolean
+  :group 'dl)
 
 ;;     [SJT:  OK, ispell uses M-$, and LEIM and Wnn both use C-\.  I see
 ;;	all three processes (spell-check, localized input methods, and
@@ -265,8 +280,9 @@ since dl-mode is a global variable)."
 ;string describing this method, INVOCATION is a function to call to
 ;invoke this method, and the function will be applied to (cons TYPE
 ;ARGS).
+;; #### a custom interface might be nice
 (defvar dui-method-alist nil
-  "Registry of dictionary methods and utilities.
+  "*Registry of dictionary methods and utilities.
 
 An alist containing elements of the form (METHOD TYPE DESCRIPTION
 INVOCATION &rest ARGS).
@@ -284,11 +300,9 @@ the function will be applied to (cons TYPE ARGS).")
 (defun dui-get-method-invocation (slot) (nth 3 slot))
 (defun dui-get-method-args (slot) (nthcdr 4 slot))
 
-(defvar dui-registration-errors nil
+;; Flush any old errors hanging around on reload.
+(defconst dui-registration-errors nil
   "String containing description of method registration problems.")
-
-;; Flush any old errors hanging around.
-(setq dui-registration-errors nil)
 
 (defun dui-register-method
   (method type invocation description &rest args)

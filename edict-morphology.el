@@ -1,12 +1,14 @@
 ;;; edict-morphology.el --- morphology rewrite engine for edict.el
 
+;; Copyright (C) 1992 Bob Kerns <rwk@crl.dec.com>
 ;; Copyright (C) 1991, 1992 Per Hammarlund (perham@nada.kth.se)
+;; Copyright (C) 1998, 2002 Free Software Foundation, Inc.
 
 ;; Author:      Per Hammarlund <perham@nada.kth.se>
 ;; Keywords:    mule, edict, dictionary
-;; Version:     0.9.8
-;; Adapted-by:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp> for XEmacs
-;; Maintainer:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+;; Version:     0.9.9
+;; Adapted-by:  Stephen J. Turnbull <stephen@xemacs.org> for XEmacs
+;; Maintainer:  Stephen J. Turnbull <stephen@xemacs.org>
 
 ;;   This file is part of XEmacs.
 
@@ -42,12 +44,15 @@
 
 ;;; Changelog:
 
-;; 1998-03-27  Stephen Turnbull  <turnbull@sk.tsukuba.ac.jp>
+;; 1998-03-27  Stephen Turnbull  <stephen@xemacs.org>
 ;;        (created):  broken out from monolithic edict.el
 
 ;;; Code:
 
 (require 'cl)				; for defstruct
+
+;; Set this to true for debugging.
+(defvar *edict-expand-string-trace* nil)  
 
 ;;; Constants:
 
@@ -415,9 +420,6 @@ be appropriate in yomi).")
       (if (equal suffix (aref b from))
 	  (throw 'exit (aref b to))))
     (throw 'skip-rule nil)))
-
-;; Set this to true for debugging.
-(defvar *edict-expand-string-trace* nil)  
 
 ;; This returns a list of the results of applying all rules whose
 ;; patterns match, to all levels of recursion.

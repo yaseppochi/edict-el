@@ -17,7 +17,7 @@ BUGS
     for existence of edict-buffer.
 2.  Completion of search methods will find insert methods, eg, need to
     filter in the same way as history.
-3.  To conform with Makefile.FSF need to make default
+3.  To conform with Makefile.GNU need to make default
     edict-dictionary-path point to .../emacs/site-lisp/edict.
 4.  edict-standin does (aref i global-map)
 
@@ -41,7 +41,7 @@ TO DO
     variable, but there it would be definitely useful since Custom can 
     be set up to automatically reread EDICT, unlike setq).
     [SJT: also *edict-files*.]
-2.  FSF compatibility.
+2.  GNU Emacs compatibility.
 3.  A "report private dictionary to Jim Breen" function.
 4.  A "parse-word-at-point" function.  (I was wrong, it isn't in 
     the current version.  Hard; you can ask for it, but I don't know
@@ -58,7 +58,7 @@ PROJECTS
 4.  Make the morphology rewrite system make sense, and be consistent
     with the docs.
 5.  kanjidic support
-6.  Figure out how to handle both FSF's functionality and XEmacs's
+6.  Figure out how to handle both GNU Emacs's functionality and XEmacs's
     functionality portably
 7.  Use VM's tapestry.el to track window configuration, or borrow
     from view-process-mode.el.

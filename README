@@ -1,12 +1,12 @@
 ***** edict.el optimized for XEmacs *****
 
-Version 0.9.8
+Version 0.9.9
 
-This file Copyright 1998 Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>.
+This file Copyright 1998, 2002 Free Software Foundation, Inc.
 
-The edict.el package is Copyright 1991, 1992 Per Hammarlund 
-  <perham@nada.kth.se> and 1998 Stephen J. Turnbull
-  <turnbull@sk.tsukuba.ac.jp>.
+The edict.el package is Copyright 1991, 1992 Per Hammarlund
+  <perham@nada.kth.se>, 1992 Bob Kerns <rwk@crl.dec.com>, and 1998, 2002
+  Free Software Foundation, Inc.
 
 Individual files may have their own Copyrights differing from the above.
 
@@ -28,10 +28,10 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 Original author:  Per Hammarlund <perham@nada.kth.se>
 Other authors:    Bob Kerns <rwk@crl.dec.com>
-                  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+                  Stephen J. Turnbull <stephen@xemacs.org>
 
-Adapted-by:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp> for XEmacs
-Maintainer:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+Adapted-by:  Stephen J. Turnbull <stephen@xemacs.org> for XEmacs
+Maintainer:  Stephen J. Turnbull <stephen@xemacs.org>
 
 ***** Whatzit? *****
 
@@ -47,8 +47,22 @@ Bob Kerns added a morphology engine, which reduces a highly inflected
 Japanese word to a list of dictionary forms (eg, itta -> (iku, iu)),
 all of which are looked up.
 
+***** NEWS *****
+
+Version 0.9.9
+
+You can now use the Customize interface (in the 'edict subgroup of the
+'mule group) to set variables.
+
+An experimental automated update function is partially implemented,
+but already useful.  `update-edict' uses wget to fetch the current
+version(s) of the edict dictionary(ies) you use from the Monash
+University Nihongo archive, or a user-specified mirror.
+
+Version 0.9.8
+
 After several years of service, it became partially incompatible with
-recent FSF Emacsen, especially the keymaps and the byte compiler, and
+recent GNU Emacsen, especially the keymaps and the byte compiler, and
 never was adapted for XEmacs (which only recently acquired Japanese
 capability).  This BETA release adapts edict.el to XEmacs (because
 that's what the maintainer uses), packages it for ease of installation
@@ -57,46 +71,47 @@ Dictionary Lookup minor mode.
 
 Documentation from version 0.9.6 (the last version maintained by Per
 Hammarlund) is included in the appropriate .../etc directory, with the
-file extension .096.  The sources for version 0.9.6 are available at
-the URL below in edict-0.9.6-src.tar.gz.  (This numbering is unrelated
-to the numbering of XEmacs packages.)
+file extension .096.  (This numbering is unrelated to the numbering of
+XEmacs packages.)
 
 ***** Installation *****
 
+For XEmacs >= 21.1, use the package user interface.
+
 For XEmacs >= 20.3, get edict-<version>-pkg.tar.gz from
 
-    http://turnbull.sk.tsukuba.ac.jp/Tools/XEmacs/packages/edict/
+	       ftp://ftp.emacs.org/pub/xemacs/packages/
 
-and untar it in the the directory ~/.xemacs (or root directory of your
-package hierarchy, if you know what that is).  If you are using XEmacs 
->= 20.5, you're done.
-
-If you're using XEmacs 20.3 or 20.4, then add
+and untar it in the the directory ~/.xemacs (or top directory of your
+package hierarchy).  If you are using XEmacs >= 20.5, you're done.  If
+you're using XEmacs 20.3 or 20.4, then add
 
 	 (load-file "~/.xemacs/lisp/edict/auto-autoloads.el")
 
-to your ~/.emacs or ~/.xemacs/init.el.  Get edict (the dictionary)
-from ftp://ftp.cc.monash.edu.au/pub/nihongo/, and install it in an
+to your ~/.emacs or ~/.xemacs/init.el.
+
+Get edict (the dictionary) from
+ftp://ftp.cc.monash.edu.au/pub/nihongo/, and install it in an
 appropriate etc/ or etc/edict/ in your package hierarchy
 (~/.xemacs/etc/ is fine).  For trial purposes, there is a tiny
-edict.demo dictionary supplied with edict.el.
+edictj.demo dictionary supplied with edict.el.
 
-For the FSF's distribution of Emacs >= 20.0, get
-edict-<version>-fsf.tar.gz from the URL above.  Unpack it somewhere;
-.../emacs/site-lisp/edict/ is recommended.  The dictionary should go
-in the same directory.  (This is intended to be automatically found,
-but version 0.9.8 doesn't do that yet.  You will have to set either
-the `edict-dictionary-path' or `edict-dictionaries'.)
+For mainline GNU Emacs >= 20.1, get edict-<version>-pkg.tar.gz from
+the URL above.  Unpack it somewhere; .../emacs/site-lisp/edict/ is
+recommended.  The dictionary should go in the same directory.  (This
+is intended to be automatically found, but version 0.9.9 doesn't do
+that yet.  You will have to set either the `edict-dictionary-path' or
+`edict-dictionaries'.)
 
 Users of other versions of Mule are welcome to play around; please
 tell me what you did, whether it works or not.  Due to changes in
 keymap code, it is highly unlikely that the current version of
 edict.el will work with nemacs or Mule based on Emacs version 18.
 
-If you have special needs, the package sources are available in
-edict-<version>-src.tar.gz.  Makefile is very XEmacs (>=20) specific;
-Makefile.FSF is provided for building for the FSF's distribution of
-Emacs.  The FSF's Emacs and XEmacs are nearly byte-code compatible;
+If you have special needs, the package sources are available by CVS,
+see http://cvs.xemacs.org/.  Makefile is very XEmacs (>=20) specific;
+Makefile.GNU is provided for building for the FSF's distribution of
+Emacs.  Mainline GNU Emacs and XEmacs are nearly byte-code compatible;
 unfortunately the incompatibilities are most likely to show up in Mule
 applications, so you should byte-compile the source with the Emacs you
 plan to use the package with.
@@ -111,8 +126,8 @@ variables `edict-dictionaries' and `edict-user-dictionary' as needed.
 Other users may need to set up autoloads and possibly their
 load-paths.  A file auto-autoloads.el is provided; this file can only
 (at this time) be produced using XEmacs, but it should work with other
-Emacs.  This file is automatically consulted by XEmacs; users of the
-FSF distribution of Emacs should be able to use it by adding
+Emacs.  This file is automatically consulted by XEmacs; users of
+mainline GNU Emacs should be able to use it by adding
 
       (load-file "<path-to>/site-lisp/edict/auto-autoloads.el")
 
@@ -141,10 +156,6 @@ a LIST of strings, each of which should be a path to a directory which
 might contain edict dictionaries.
 
 ***** Usage *****
-
-Note: experience with dui indicates that it's not a very good
-interface, at least with the current keymap.  Experimentation and
-comments are very welcome, of course.
 
 The interface to edict is now the Dictionary Lookup minor mode
 (dl-mode).  It is invoked as usual by (eg) "M-x dl-mode", and its
@@ -182,7 +193,7 @@ Enjoy!
 
 ***** Bug reports, comments, and feature requests *****
 
-Please send these to "Stephen Turnbull" <turnbull@sk.tsukuba.ac.jp>.
+Please send these to "Stephen Turnbull" <stephen@xemacs.org>.
 
 Bug reports are of course of high priority, but I am hoping that users 
 will also report inflections and idioms that the morphology engine

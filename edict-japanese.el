@@ -1,12 +1,13 @@
 ;;; edict-japanese.el --- Japanese morphology rules for edict.el
 
 ;; Copyright (C) 1991, 1992 Per Hammarlund (perham@nada.kth.se)
+;; Copyright (C) 1998 Free Software Foundation, Inc.
 
 ;; Author:      Per Hammarlund <perham@nada.kth.se>
 ;; Keywords:    mule, edict, dictionary
-;; Version:     0.9.8
-;; Adapted-by:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp> for XEmacs
-;; Maintainer:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
+;; Version:     0.9.9
+;; Adapted-by:  Stephen J. Turnbull <stephen@xemacs.org> for XEmacs
+;; Maintainer:  Stephen J. Turnbull <stephen@xemacs.org>
 
 ;;   This file is part of XEmacs.
 
@@ -42,7 +43,7 @@
 
 ;;; Changelog:
 
-;; 1998-03-27  Stephen Turnbull  <turnbull@sk.tsukuba.ac.jp>
+;; 1998-03-27  Stephen Turnbull  <stephen@xemacs.org>
 ;;        (created):  broken out from monolithic edict.el
 
 ;;; Code:
