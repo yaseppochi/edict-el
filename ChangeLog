@@ -1,3 +1,7 @@
+2000-11-08  Steve Youngs  <youngs@xemacs.org>
+
+	* package-info.in (description): Add "MULE" to description.
+
 2000-10-05  Martin Buchholz  <martin@xemacs.org>
 
 	* *: Mega typo fix.
