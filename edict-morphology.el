@@ -4,7 +4,7 @@
 
 ;; Author:      Per Hammarlund <perham@nada.kth.se>
 ;; Keywords:    mule, edict, dictionary
-;; Version:     0.9.7
+;; Version:     0.9.8
 ;; Adapted-by:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp> for XEmacs
 ;; Maintainer:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
 
@@ -47,7 +47,7 @@
 
 ;;; Code:
 
-(provide 'edict-morphology)
+(require 'cl)				; for defstruct
 
 ;;; Constants:
 
@@ -499,5 +499,7 @@ be appropriate in yomi).")
 ;      (unless (member frob set2)
 ;	(setq result (cons frob result))))
 ;    result))
+
+(provide 'edict-morphology)
 
 ;;; edict-morphology.el ends here

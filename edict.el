@@ -1,10 +1,10 @@
-;;; edict.el --- Word lookup (with deinflection) in EDICT
+;; edict.el --- Word lookup (with deinflection) in EDICT
 
 ;; Copyright (C) 1991, 1992 Per Hammarlund (perham@nada.kth.se)
 
 ;; Author:      Per Hammarlund <perham@nada.kth.se>
 ;; Keywords:    mule, edict, dictionary
-;; Version:     0.9.7
+;; Version:     0.9.8
 ;; Adapted-by:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp> for XEmacs
 ;; Maintainer:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
 
@@ -82,141 +82,7 @@
 
 ;;; To do:
 
-;; From: "Stephen J. Turnbull" <turnbull@sk.tsukuba.ac.jp>
-;; To: SL Baur <steve@xemacs.org>
-;; Message-ID: <13580.37185.529017.717779@tanko.sk.tsukuba.ac.jp>
-;; X-Mailer: VM 6.43 under 20.5 "Moxoto" XEmacs  Lucid (beta30)
-;; Subject: Re: Porting edict.el
-;; Date: Mon, 16 Mar 1998 12:51:36 +0900 (JST)
-;;
-;; My current state is I have a compiling and working version using the
-;; category/range variables introduced in that file.  (Attached below, FYI.)
-;;
-;; Unless you have reason to want to keep your hands directly on this
-;; package now, I think I can take care of it for the next few steps, now
-;; that it compiles and runs.  The failure of half-a-dozen productions in
-;; edict-tests.el are Japanese grammar problems, not a LISP problem
-;; (including the final "unexpected expansion", which is an English
-;; syntax problem).
-;;
-;; Here's what I have in mind (not necessarily in this order):
-;;
-;; 1.  [OK] Keep the range variables already introduced, and document
-;;     them and how to byte-compile with them.  (Fix the package Makefile.)
-;; 2.  [OK] Make the ranges correct (first try; until I really understand the
-;;     implementation of the grammar, I can't say they are truly correct, 
-;;     it's not quite as simple as A-B-C).
-;; 3.  [OK] Make the file comply with lisp-mnt.el.
-;; 4.  [OK] Reorganize and document the file by functionality, possibly
-;;     separating  them into different files.  [SB: check with Per H. first.]
-;; 5.  [OK] Punt on the coding-system of EDICT problem, since recognizing
-;;     which of a half-dozen coding systems is in use is hard, and it is
-;;     highly likely that different systems will translate the file.
-;;     I guess rather than simply punt-by-documenting I will add an
-;;     option variable to specify a coding system, and default it to
-;;     auto-recognition.
-;;     [SJT: *edict-files* is a _list_.  Drop back 15....  The quick fix is
-;;	to put it in file-coding-system-alist.  "Fixed-by-documentation."]
-;; 6.  [OK] Find an appropriate binding for the minor mode map.  My instant
-;;     reaction was "C-C ?", but that's taken.  So I will look around
-;;     (check ispell and the like, maybe one of those can be
-;;     appropriately augmented---this would have to be coordinated with
-;;     the appropriate maintainer, right?), but I'm leaning toward one of
-;;     the quote marks (" ' `) if I don't find something else.
-;;     [SB:  before doing anything permanent, discuss on XEmacs Beta.]
-;;     [SJT:  OK, ispell uses M-$, and LEIM and Wnn both use C-\.  I see
-;;	all three processes (spell-check, localized input methods, and
-;;	dictionary lookup) as being aspects of high-level dictionary-
-;;	based natural language input.  I would like to overload the same
-;;	mode-toggle for all of them.  I see IMs as being primary (analogous
-;;	to a minor mode), while the checking functions are secondary and/or
-;;	transient.  Unfortunately, both ispell and LEIM use prefix args to
-;;	modify the toggle's behavior.  But all of "C-$", "C-c $", "C-c \",
-;;	and "C-c \" are undefined.
-;;	  I see the interface as follows.
-;;	The main-entry point is the the transient function (ispell-word,
-;;	edict-lookup-*), bound to the un-prefixed key.
-;;	The prefixed key would give a short choice menu, in the echo area.
-;;	A short-list of defaults would be alternative transient functions,
-;;	plus the choices to add or delete from the menu, or to do more
-;;	complicated maintenance (eg, customize, once we have an interface.)
-;; 7.  Maybe add a customize interface (the only thing that might want
-;;     customized that I know of is the proposed edict-coding-system
-;;     variable, but there it would be definitely useful since Custom can 
-;;     be set up to automatically reread EDICT, unlike setq).
-;;     [SJT: also *edict-files*.]
-;; 8.  [OK] Autoload cookies as appropriate.
-;; 9.  Fix style of docstrings and move comments into docstrings where
-;;     appropriate.
-;; 10. [OK] Fix grammar errors reported by edict-test.el.
-;;
-;; Some other stuff I definitely need advice or help on:
-;;
-;; 1.  The nomenclature is non-standard (use of `*' in variable names).
-;;     Change these to the `edict-...' style?  Only with permission of
-;;     Per Hammarlund?
-;; 2.  [OK] I'm willing to do maintenance of this package.  Obviously that
-;;     requires an attempt to contact Per.  I think he would be amenable
-;;     from our last conversation, when he said he didn't have time for it.
-;; 3.  FSF compatibility.  This shouldn't be too hard, and I intend to do 
-;;     it, but is it a priority (I would need to install FSF Emacs)?
-;; 4.  As far as XEmacs is concerned, I can say anything pre-20.0 is
-;;     unsupported, obviously.  But it probably should be tested for
-;;     backward compatibility with 20.[02].
-;;
-;; Projects:
-;;
-;; 1.  A "report private dictionary to Jim Breen" function.
-;; 2.  A "parse-word-at-point" function.  (I was wrong, it isn't in 
-;;     the current version.  Hard; you can ask for it, but I don't know
-;;     that I'll be able to produce a good one quickly :-)
-;; 3.  Info documentation.
-;; 4.  Generalization (eg for Korean/Chinese, or for Spanish/German for
-;;     that matter).
-;;
-;; Any comments or requests gratefully accepted.
-;;
-;; Ah yes, deadline?  I guess since it's a package, none in particular,
-;; but I oughtta ask.
-
-;; More to do:
-;;
-;; 1.  [OK] Should not require the IMs in Makefile.  How to avoid?
-;;     [SJT: we go through the generic Mule/LEIM interface.]
-;; 2.  [OK] Quick-fix the window configuration (window-edges) stuff.
-;; 3.  [OK -> More projects #5] Figure out the morphology rewriting 
-;;     system and comment it up.
-;; 4.  [OK] Change *edict-files* to allow cons'es of files and coding
-;;     systems; default is autoconversion, of course(?)
-;; 5.  Error handling on file I/O etc is rude.  Especially fix the
-;;     `with-output-to-temp-buffer' stuff.
-;; 6.  Why are there so many `edict-add-*' and `edict-insert-*' commands?
-;; 7.  Move the docstring for `edict-init' back into the function.
-;; 8.  [OK] Fix the bogus "found it" reports.
-;; 9.  Need to handle JIS X 0201 (and so on) in the dictionary as well as
-;;     in the key.
-;; 10. [OK] Do something more user-friendly if there's no region for
-;;     edict-search-kanji.
-;; 11. The timing for missing/unreadable files and preregistered methods
-;;     is bogus.  Think and fix.
-
-;; More projects:
-;;
-;; 1.  "Upstream" and "external" package tracking.  Things like
-;;     dictionaries should be tracked at their sources for updates.
-;;     If you're going to have that capability, then why not the
-;;     capability to do this for arbitrary packages?
-;; 2.  If you're going to be automatically running off to do external
-;;     package tracking, then automate sending the local dictionary to
-;;     Jim Breen.  
-;; 3.  Use VM's tapestry.el to track window configuration, or borrow
-;;     from view-process-mode.el.
-;; 4.  Bug report/feature request function.  (Use reporter.el, see
-;;     view-process-mode.el for how.)
-;; 5.  Make the morphology rewrite system make sense, and be consistent
-;;     with the docs.
-;; 6.  kanjidic support
-
+;; See the file TODO
 ;; Testing
 
 ;; edict.el commands
@@ -257,7 +123,11 @@
 ;  edict-decircularize-rules
 ;  edict-circularize-rules
 
-;;; Changelog:
+;;; History:
+;;
+;; A full ChangeLog is provided as a separate file.
+;;
+;;      0.9.8          FSF and XEmacs-21 compatibility release
 ;;      0.9.7          XEmacs-beta beta release
 ;;	0.9.6-sjt-0.1  Modifications provided by Steven Baur and Olivier
 ;;		       Galibert to get it to compile; the character
@@ -267,7 +137,7 @@
 ;;		       Changes in spacing, typos, etc, but not major
 ;;		       formatting.
 ;;		       Change format to comply with lisp-mnt.el
-;;	0.9.6	       See ChangeLog.perham for history to this point.
+;;	0.9.6	       See ChangeLog.096 for history to this point.
 
 ;;; Code:
 
@@ -283,31 +153,71 @@
 
 ;;; Variables:
 
+(defvar edict-version-date "980524 [平成10年5月24日(木)]"
+  "The variable edict-version-date contains a string with the
+date when this version was released.  In both Swedish and Japanese
+standards.")
+
+(defvar edict-version "0.9.8"
+ "The variable edict-version contains a string that describes
+ what version of the edict software that you are running.")
+
+(defvar edict-default-coding-system 'euc-jp
+  "Default coding system for reading dictionary files.
+
+On Unix systems, EDICT is distributed as an EUC file.  For Windows systems
+'shift_jis is may be preferable.")
+
 (defvar edict-user-dictionary "~/.edict"
   "*This is the edict dictionary where the user's entries will be added.
 
 May be a string (filename), or a cons of a filename and a symbol
 (coding system).  Will be searched first in dictionary lookup.")
 
+;; Search paths and how to create them vary by Emacs version.
+;; This is really ugly.
 (defvar edict-dictionary-path
   (let (path)
-    (dolist (dir (reverse package-path) path)
-      (if (and dir			; handle nil components of package-path
-	       (eq (car (file-attributes dir)) t))
-	  (progn
-	    ;; don't put the package root on this path
-	    ;; (setq path (cons dir path))
-	    (let ((file (expand-file-name "etc" dir)))
-	      (if (eq (car (file-attributes file)) t)
-		  (progn
-		    (setq path (cons file path))
-		    (let ((file (expand-file-name "etc/edict" dir)))
-		      (if (eq (car (file-attributes file)) t)
-			  (setq path (cons file path)))))))))))
+    (cond
+     ;; XEmacs 21
+     ((and (fboundp 'locate-data-directory)
+	   (setq path (cond ((locate-data-directory "edict"))
+			    ((locate-data-directory ""))))))
+     ;; the FSF's Emacs and XEmacs 20
+     (t (dolist (dir
+		 ;; Use data-directory and package-path
+		 (cons data-directory
+		       ;; early betas of XEmacs 21 and betas of XEmacs 20.3
+		       ;; and 20.4 used package-path; "undocumented
+		       ;; feature" in 20.3 and 20.4 releases
+		       (mapcar
+			;; nil components of package-path stay nil
+			(lambda (dir) (if dir
+					  ;; don't add package roots
+					  (concat dir "etc/")))
+			(reverse (if (boundp 'package-path) package-path))))
+		 path)
+	  (if (and dir			; drop nil components of package-path
+		   (eq (car (file-attributes dir)) t))
+	      (progn (setq path (cons dir path))
+		     (let ((file (expand-file-name "edict" dir)))
+		       (if (eq (car (file-attributes file)) t)
+			   (setq path (cons file path)))))))))
+    (cond ((stringp path) (list path))
+	  ((null path)
+	   (message "Couldn't compute default for `edict-dictionary-path'!")
+	   nil)
+	  ((listp path) path)
+	  (t (message
+	      "Error in computing default for `edict-dictionary-path'!"))))
   "Search path for edict dictionaries.
 
-The default value is depth-first search into `etc/edict' for each
-directory on the global `package-path'.")
+The default value is the edict subdirectory of the package data-directory,
+or if that is missing the package data-directory.  Computed using
+`locate-data-directory' if available, or `package-path' (if available)
+and `data-directory'.
+
+Will not find `<package-root>/<package>/etc'-style data directories.")
 
 (defvar edict-dictionaries '("edict")
   "*List of edict dictionary specifications.
@@ -316,13 +226,16 @@ A dictionary specification is either a string (file name), or a cons
 of a file name and a symbol (coding system).  Relative paths are
 searched for in each directory in edict-dictionary-path.
 
-All dictionaries found are loaded into edict-buffer for searching.
-Usually at least one of them should be the main edict file.  It is
-redundant to include your private dictionary.
+All dictionaries found are loaded into edict-buffer for searching.  Usually at
+least one of them should be the main edict file.  Use `edict-user-dictionary'
+to specify your private dictionary, not this variable.
 
 The auxiliary dictionaries enamdict (proper names) and kanjidic (kanji
-database) may be used.  kanjidic is not supported and is probably not
-useful.")
+database) may be used.
+
+The up-to-date versions of these dictionaries are all available from
+ftp://ftp.monash.edu.au/pub/nihongo.  A very small sample dictionary,
+edictj.demo, is provided with this package.")
 
 (defvar edict-buffer nil
   "The buffer containing the concatenated dictionaries.")
@@ -333,15 +246,6 @@ useful.")
 ;;The edict matches buffer and the name of it
 (defvar edict-match-buffer-name "*edict matches*")
 (defvar edict-match-buffer nil)
-
-(defvar edict-version-date "980406 [平成１０年４月７日(木)]"
-  "The variable edict-version-date contains a string with the
-date when this version was released.  In both Swedish and Japanese
-standards")
-
-(defvar edict-version "0.9.7"
- "The variable edict-version contains a string that describes
- what version of the edict software that you are running.")
 
 ;; #### is this appropriate?
 ;;;###autoload
@@ -394,13 +298,6 @@ at the moment.  The same string is also returned from the function."
 ;(defvar *edict-non-existent-error*
 ;  "While loading edict files: \"%s\" doesn't exist!")
 
-(defvar edict-default-coding-system 'automatic-conversion
-  "Default coding system for reading dictionary files.
-
-You probably shouldn't change this, but rather specify a coding system
-in `edict-dictionaries' or file-coding-system-alist or use the Mule
-`prefer-coding-system' function.")
-
 (defconst edict-bad-dict-spec-cons
   "In edict-dictionaries: %s - car not string or cdr not coding-system.")
 
@@ -432,7 +329,10 @@ string component of DICT-SPEC.  Return 'nil if not found and readable."
 	   (if (not (and (stringp (setq filename (car dict-spec)))
 			 (coding-system-p
 			  (setq coding-system
-				(find-coding-system (cdr dict-spec))))))
+				;; #### no `find-coding-system' in FSF's Emacs
+				(if (fboundp 'find-coding-system)
+				    (find-coding-system (cdr dict-spec))
+				  (cdr dict-spec))))))
 	       ;; Just because one spec is in error doesn't mean they
 	       ;; all are.  Tough.
 	       ;; I'm too lazy to be user-friendly here.

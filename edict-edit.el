@@ -4,7 +4,7 @@
 
 ;; Author:      Per Hammarlund <perham@nada.kth.se>
 ;; Keywords:    mule, edict, dictionary
-;; Version:     0.9.7
+;; Version:     0.9.8
 ;; Adapted-by:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp> for XEmacs
 ;; Maintainer:  Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
 
@@ -42,7 +42,7 @@
 
 ;;; Code:
 
-(provide 'edict-edit)
+(require 'cl)
 
 ;;; Customizable variables
 
@@ -76,18 +76,25 @@ If t, use it; if nil, don't use it.  If 'ask, ask and (re)set the flag.")
 		    (define-key edict-edit-mode-map key 'edict-standin))
 		  edict-edit-mode-map)
     (dotimes (i 128)
-      ;; I don't know how to invoke multi-char commands, so don't hook
-      ;; those.
-      (unless (consp (aref edict-edit-mode-map i))
-	(setf (aref edict-edit-mode-map i) 'edict-standin))))
+      ;; #### I hope this is OK without the check below
+      (define-key edict-edit-mode-map [ i ] 'edict-standin)))
+; Emacs 18?
+;      ;; I don't know how to invoke multi-char commands, so don't hook
+;      ;; those.
+;      (unless (consp (aref edict-edit-mode-map i))
+;	(setf (aref edict-edit-mode-map i) 'edict-standin))))
   (if (featurep 'xemacs)
       (progn
 	(define-key edict-edit-mode-map [(control c)] nil)
 	(define-key edict-edit-mode-map [(control x)] nil)
 	(define-key edict-edit-mode-map [(escape)] nil))
-    (setf (aref edict-edit-mode-map 3) nil
-	  (aref edict-edit-mode-map 24) nil
-	  (aref edict-edit-mode-map 27) nil))
+    (define-key edict-edit-mode-map [ 3 ] nil)
+    (define-key edict-edit-mode-map [ 24 ] nil)
+    (define-key edict-edit-mode-map [ 27 ] nil))
+; Emacs 18?
+;    (setf (aref edict-edit-mode-map 3) nil
+;	  (aref edict-edit-mode-map 24) nil
+;	  (aref edict-edit-mode-map 27) nil))
   (define-key edict-edit-mode-map "\C-c\C-c" 'edict-exit)
   (define-key edict-edit-mode-map "\C-x\C-s" 'edict-exit)
   (define-key edict-edit-mode-map "\t" 'edict-tab)
@@ -566,5 +573,7 @@ running copy of the dictionary, and restoring the window configuration."
   (edict-add-entry-to-file edict-user-dictionary
 			   (edict-clean-up-kanji (buffer-substring min max))
 			   nil nil))
+
+(provide 'edict-edit)
 
 ;;; edict-edit.el ends here

@@ -4,7 +4,7 @@
 
 ;; Author:      Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
 ;; Keywords:    mule, dictionary
-;; Version:     0.5
+;; Version:     0.6
 
 ;;   This file is part of XEmacs.
 
@@ -127,13 +127,12 @@ and reporting any conflicting bindings.
 ;;
 (or dl-mode-submap
     (progn
-     (setq dl-mode-submap (make-sparse-keymap))
-     (define-prefix-command 'dl-mode-submap 'dl-mode-submap)
-     (define-key dl-mode-submap ?s 'dui-invoke-search-method)
-     (define-key dl-mode-submap ?i 'dui-invoke-insert-method)
+     (define-prefix-command 'dl-mode-submap) ;
+     (define-key dl-mode-submap '[ ?s ] 'dui-invoke-search-method)
+     (define-key dl-mode-submap '[ ?i ] 'dui-invoke-insert-method)
      ;; Hmm ... I don't think there are any of these :-P
-     ;;(define-key dl-mode-submap ?e 'dui-invoke-edit-method)
-     (define-key dl-mode-submap ?d 'dui-describe-method)
+     ;;(define-key dl-mode-submap '[ ?e ] 'dui-invoke-edit-method)
+     (define-key dl-mode-submap '[ ?d ] 'dui-describe-method)
      ))
 
 ;; Helper functions
@@ -189,41 +188,46 @@ already active.  The current implementation only looks in the active
 keymaps.  Maps of inactive minor modes and local maps major modes of
 other buffers will not be searched (although the latter will be shadowed
 since dl-mode is a global variable)."
-  (let ((found 0))
-    (if (> dl-warn-conflict-verbosity 1)
-	(progn
-	  (message "Checking for conflicting bindings...")
-	  (if (> dl-warn-conflict-verbosity 2)
-	      (message "Examining accessible maps of map:\n    `%s'" map))))
-    ;; A map is accessible from itself
-    (mapcar (lambda (slot)
-	      (let ((prefix (car slot))
-		    (map (cdr slot)))
-		(if (> dl-warn-conflict-verbosity 2)
-		    (message "Examining keys of map:\n    `%s'" map))
-		(map-keymap (lambda (key binding)
-			      (let* ((key (vconcat prefix (vector key)))
-				     (binding (key-binding key)))
-				(if (and binding
-					 (> dl-warn-conflict-verbosity 0))
-				    (progn
-				      (if (not (keymapp binding))
-					  (setq found (1+ found)))
-				      (message dl-conflict-warning
-					       key binding)))))
-			    map)))
-	    (accessible-keymaps map))
-    (if (> dl-warn-conflict-verbosity 1)
-	(message "Checking for conflicting bindings...done%s"
-		 (if (> found 0)
-		     (format ".  Found %d." found)
-		   ".")))))
+  (if (null (featurep 'xemacs))
+      ;; `map-keymap' doesn't exist in the FSF's Emacs
+      (message "Keymap shadow checking not supported under\n%s"
+	       (emacs-version))
+    (let ((found 0))
+      (if (> dl-warn-conflict-verbosity 1)
+	  (progn
+	    (message "Checking for conflicting bindings...")
+	    (if (> dl-warn-conflict-verbosity 2)
+		(message "Examining accessible maps of map:\n    `%s'" map))))
+      ;; A map is accessible from itself
+      (mapcar (lambda (slot)
+		(let ((prefix (car slot))
+		      (map (cdr slot)))
+		  (if (> dl-warn-conflict-verbosity 2)
+		      (message "Examining keys of map:\n    `%s'" map))
+		  (map-keymap (lambda (key binding)
+				(let* ((key (vconcat prefix (vector key)))
+				       (binding (key-binding key)))
+				  (if (and binding
+					   (> dl-warn-conflict-verbosity 0))
+				      (progn
+					(if (not (keymapp binding))
+					    (setq found (1+ found)))
+					(message dl-conflict-warning
+						 key binding)))))
+			      map)))
+	      (accessible-keymaps map))
+      (if (> dl-warn-conflict-verbosity 1)
+	  (message "Checking for conflicting bindings...done%s"
+		   (if (> found 0)
+		       (format ".  Found %d." found)
+		     "."))))))
 
-;; Register the mode with XEmacs
-;;
-(add-minor-mode 'dl-mode
-		dl-indicator-string
-		(dl-mode-set-prefix dl-mode-prefix 'adding-minor-mode))
+;; Register the mode with Emacs
+;; `add-minor-mode' doesn't exist in Emacs 20.2  :-(
+(or (assq 'dl-mode minor-mode-alist)
+    (setq minor-mode-alist
+	  (cons (list 'dl-mode dl-indicator-string) minor-mode-alist)))
+(dl-mode-set-prefix dl-mode-prefix)
 
 ;;; end of dictionary lookup minor mode
 

@@ -4,7 +4,7 @@
 
 ;; Author:      Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
 ;; Keywords:    mule, dictionary
-;; Version:     0.5
+;; Version:     0.6
 
 ;;   This file is part of XEmacs.
 
@@ -119,7 +119,7 @@ The entry is formatted for EDICT, and edict-edit-mode is entered.")
 
 The entry is formatted for EDICT, and edict-edit-mode is entered.")
 
-(dui-princ-errors)
+;(dui-princ-errors)
 
 (provide 'dui-registry)
 

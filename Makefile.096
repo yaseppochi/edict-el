@@ -1,0 +1,37 @@
+#
+#  Copyright (c) 1992 Per Hammarlund (perham@nada.kth.se)
+#
+# This is a silly makefile to ease the handling of the edict software,
+# it can do silly things like building a distribution (taring),
+# cleaning and such.
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 1, or (at your option)
+#   any later version.
+# 
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+# 
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+
+EMACS-LISP-FILES = edict-test.el edict.el
+TEXT-FILES = COPYING README edict.ChangeLog edict.doc
+DEMO-DICT-FILE = edictj.demo
+INSTALL-FILES = Makefile install.edict
+DISTRIBUTION-FILES =  $(EMACS-LISP-FILES) $(TEXT-FILES) $(DEMO-DICT-FILE) $(INSTALL-FILES)
+DIST-FILE-NAME = edict.tar
+
+
+distribution:	$(DISTRIBUTION-FILES)
+	tar -cvf $(DIST-FILE-NAME) $(DISTRIBUTION-FILES);\
+	compress $(DIST-FILE-NAME)
+
+
+
+
