@@ -1,3 +1,9 @@
+2003-04-29  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* edict-update.el (edict-update): To do comment.
+	(edict-update-setup-stage): Handle local mirror properly.
+	(edict-update-cleanup-stage): Make comment describe reality.
+
 2003-03-09  Ben Wing  <ben@xemacs.org>
 
 	* Makefile (COMPATIBILITY_FLAGS):

@@ -130,6 +130,7 @@ determine how and where to download and install.
   (interactive)
 
   (let ((stage (edict-update-setup-stage))
+	;; #### walk down the path looking for writables, confirm
 	(destination (file-name-as-directory (car edict-dictionary-path)))
 	(sources edict-update-sources-alist)
 	(files (or edict-update-file-list edict-dictionaries)))
@@ -157,15 +158,26 @@ determine how and where to download and install.
   "Determine staging directory, and create it if needed."
 
   ;; #### do proper temporary creation
-  (or edict-update-local-mirror
-      (if (file-exists-p edict-update-staging)
-	  (error "%s exists, move it out of the way, please"
-		 edict-update-staging)
-	(make-directory edict-update-staging t)
-	edict-update-staging)))
+  (if edict-update-local-mirror
+      (cond ((not (file-exists-p edict-update-local-mirror))
+	     (make-directory edict-update-local-mirror t))
+	    ((and (file-directory-p edict-update-local-mirror)
+		  (not (file-writable-p edict-update-local-mirror)))
+	     (error 'file-error "not writable by you"
+		    edict-update-local-mirror))
+	    ((not (file-directory-p edict-update-local-mirror))
+	     (error 'file-already-exists "is not a directory"
+		    edict-update-local-mirror)))
+    (if (file-exists-p edict-update-staging)
+	(error "%s exists, move it out of the way, please"
+	       edict-update-staging)
+      (make-directory edict-update-staging t)
+      edict-update-staging)))
 
 (defun edict-update-cleanup-stage ()
-  "Clean up downloaded files and remove temporary staging area."
+  "Remove temporary staging area.
+
+Files should already have been removed."
 
   (unless edict-update-local-mirror
     (remove-directory edict-update-staging)))
