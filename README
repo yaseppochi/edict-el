@@ -142,6 +142,10 @@ might contain edict dictionaries.
 
 ***** Usage *****
 
+Note: experience with dui indicates that it's not a very good
+interface, at least with the current keymap.  Experimentation and
+comments are very welcome, of course.
+
 The interface to edict is now the Dictionary Lookup minor mode
 (dl-mode).  It is invoked as usual by (eg) "M-x dl-mode", and its
 modeline indicator is "dl".  dl-mode is autoloaded.  The various
