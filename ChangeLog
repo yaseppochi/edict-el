@@ -2,6 +2,13 @@
 
 	* .cvsignore: Remove files now handled automatically by CVS.
 
+2002-11-29  Ben Wing  <ben@xemacs.org>
+
+	* Makefile: Use `compile' instead of hard-coded `all'.
+	* Makefile.GNU (BATCH): New.  Use it.
+	* Makefile.GNU (.phony):
+	* Makefile.GNU (all):
+
 2002-10-15  Ville Skyttä  <scop@xemacs.org>
 
 	* Makefile (srckit): Remove.

@@ -42,6 +42,8 @@ EMACS = emacs
 # Emacs without any site or user customizations
 VANILLA = --no-init-file --no-site-file
 
+BATCH = $(VANILLA) -batch -eval '(setq stack-trace-on-error t)'
+
 # path to utilities
 TAR = tar
 
@@ -50,7 +52,7 @@ TAR = tar
 .phony: tar
 
 %.elc: %.el
-	$(EMACS) $(VANILLA) -batch \
+	$(EMACS) $(BATCH) \
 		 --eval "(setq load-path (cons \".\" load-path))" \
 		 -f batch-byte-compile $<
 

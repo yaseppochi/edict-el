@@ -44,12 +44,12 @@ GENERATED += custom-load.elc
 
 ifeq ($(BUILD_WITHOUT_MULE),)
 
-all:: auto-autoloads.elc $(ELCS) custom-load.elc
+compile:: auto-autoloads.elc $(ELCS) custom-load.elc
 
 binkit: binkit-common
 
 else
-all::
+compile::
 	@echo Edict requires XEmacs/Mule to build
 
 # Noop
