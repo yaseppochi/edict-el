@@ -17,7 +17,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-VERSION = 1.02
+VERSION = 1.03
 AUTHOR_VERSION = 0.9.8
 MAINTAINER = Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
 PACKAGE = edict
