@@ -1,3 +1,7 @@
+1998-07-23  SL Baur  <steve@altair.xemacs.org>
+
+	* Makefile: Don't build if XEmacs/no-Mule.
+
 1998-06-29  SL Baur  <steve@altair.xemacs.org>
 
 	* package-info.in: Update provides.

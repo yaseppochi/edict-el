@@ -17,7 +17,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-VERSION = 1.03
+VERSION = 1.04
 AUTHOR_VERSION = 0.9.8
 MAINTAINER = Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
 PACKAGE = edict
@@ -34,8 +34,20 @@ COMPATIBILITY-FLAGS = -eval "(setq byte-compile-print-gensym nil)"
 
 include ../../XEmacs.rules
 
+ifeq ($(BUILD_MULE),t)
+
 all:: $(ELCS) auto-autoloads.elc
 
 srckit: srckit-std
 
 binkit: binkit-sourceonly
+
+else
+all::
+	@echo Edict requires XEmacs/Mule to build
+
+# Two noops
+srckit:
+binkit:
+
+endif
