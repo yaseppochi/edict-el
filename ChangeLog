@@ -1,3 +1,7 @@
+2003-08-05  Norbert Koch  <viteno@xemacs.org>
+
+	* Makefile (VERSION): XEmacs package 1.15 released.
+
 2003-08-05  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* package-info.in: Style conformance for description.
