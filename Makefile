@@ -25,8 +25,7 @@ PKG_TYPE = regular
 REQUIRES = mule-base xemacs-base
 CATEGORY = mule
 
-EXTRA_SOURCES = edict-test.el.distrib edict.el.distrib edict.doc edictj.demo \
-                ts-mode.el
+EXTRA_SOURCES = edictj.demo ts-mode.el
 
 ELCS = edict.elc dui.elc edict-morphology.elc edict-japanese.elc \
        edict-english.elc edict-edit.elc edict-test.elc dui-registry.elc

@@ -8,12 +8,12 @@
    distribution mule
    priority high
    category CATEGORY
-   dump t
+   dump nil
    description "Lisp Interface to EDICT, Kanji Dictionary"
    filename FILENAME
    md5sum MD5SUM
    size SIZE
-   provides ()
+   provides (dui-registry dui edict-edit edict-english edict-japanese edict-morphology edict-test edict ts-mode)
    requires (REQUIRES)
    type regular
 ))
