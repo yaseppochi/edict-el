@@ -17,7 +17,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-VERSION = 1.04
+VERSION = 1.05
 AUTHOR_VERSION = 0.9.8
 MAINTAINER = Stephen J. Turnbull <turnbull@sk.tsukuba.ac.jp>
 PACKAGE = edict
@@ -30,7 +30,7 @@ EXTRA_SOURCES = edictj.demo ts-mode.el
 ELCS = edict.elc dui.elc edict-morphology.elc edict-japanese.elc \
        edict-english.elc edict-edit.elc edict-test.elc dui-registry.elc
 
-COMPATIBILITY-FLAGS = -eval "(setq byte-compile-print-gensym nil)"
+COMPATIBILITY_FLAGS = -eval "(setq byte-compile-print-gensym nil)"
 
 include ../../XEmacs.rules
 
