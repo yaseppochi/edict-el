@@ -1,3 +1,7 @@
+2003-07-02  Norbert Koch  <viteno@xemacs.org>
+
+	* Makefile (VERSION): XEmacs package 1.14 released.
+
 2003-04-29  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* edict-update.el (edict-update): To do comment.
