@@ -46,16 +46,13 @@ ifeq ($(BUILD_WITHOUT_MULE),)
 
 all:: auto-autoloads.elc $(ELCS) custom-load.elc
 
-srckit: srckit-std
-
 binkit: binkit-common
 
 else
 all::
 	@echo Edict requires XEmacs/Mule to build
 
-# Two noops
-srckit:
+# Noop
 binkit:
 
 endif
