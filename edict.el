@@ -851,7 +851,7 @@ selected. This window can be removed with C-X 1."
 						    (> lx ly)))))))
       ;; For all the possibilities
       (dolist (key key-list)
-	;; Search for matches.  We exlude any one-character keys on
+	;; Search for matches.  We exclude any one-character keys on
 	;; the theory that they're likely to be uninteresting
 	;; fragments.
 	;; #### This is a strange way to do this test.  What

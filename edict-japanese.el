@@ -378,7 +378,7 @@
   ()
   edict-subst-affix "くる")
 
-;; Flush auxilliary verbs after te form.
+;; Flush auxiliary verbs after te form.
 (define-edict-rule 助動詞ー１
   (concat "\\(" edict-category-c "\\|" edict-category-h
 	  "\\)\\(く\\|て\\|んで\\)\\(いる\\|おる\\|います\\|ある\\|おく\\|みる\\)$")

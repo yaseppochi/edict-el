@@ -180,7 +180,7 @@ chmod a+x $EPATH/copy
 # The remainder of the line is the text which should be printed.
 cat <<'END' >$EPATH/text
 # It is OK to have comments in here.
-# If a translation for a messsage does not exist, the english version will be used.
+# If a translation for a message does not exist, the english version will be used.
 EN LANGUAGE	Using english messages.
 JA LANGUAGE	日本語を使っています。
 SW LANGUAGE	Anv{nder svenska meddelanden.

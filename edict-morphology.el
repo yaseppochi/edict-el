@@ -141,7 +141,7 @@ be appropriate in yomi).")
 ;;  <pattern> is a regular expression, with the parts to be substituted
 ;;  being denoted by \\(<subpattern>\\).
 ;; 
-;;  <conversion function> is a funtion responsible for determining
+;;  <conversion function> is a function responsible for determining
 ;;  the replacements.  The current choices are
 ;;  edict-subst-modified-affix and edict-subst-affix.  These
 ;;  functions are called just after doing match-string, so the regexp

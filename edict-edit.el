@@ -277,7 +277,7 @@ C-x C-s  Install the edited changes & save the file.
   (kill-all-local-variables)
   ;; Associate these with the buffer.
   (make-local-variable 'edict-previous-window-configuration)
-  (make-local-variable 'edict-previous-bufffer)
+  (make-local-variable 'edict-previous-buffer)
   (make-local-variable 'edict-filename)
   (set-syntax-table text-mode-syntax-table)
   (use-local-map edict-edit-mode-map)

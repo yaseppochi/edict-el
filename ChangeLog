@@ -1,3 +1,7 @@
+2000-10-05  Martin Buchholz  <martin@xemacs.org>
+
+	* *: Mega typo fix.
+
 2000-05-23  Karl M. Hegbloom  <karlheg@debian.org>
 
 	* Makefile: Use BUILD_WITHOUT_MULE rather than BUILD_MULE.
