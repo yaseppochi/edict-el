@@ -9,7 +9,7 @@
    priority high
    category CATEGORY
    dump nil
-   description "MULE: Lisp Interface to EDICT, Kanji Dictionary"
+   description "MULE: Lisp Interface to EDICT, Kanji Dictionary."
    filename FILENAME
    md5sum MD5SUM
    size SIZE
