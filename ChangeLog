@@ -1,3 +1,7 @@
+2000-05-23  Karl M. Hegbloom  <karlheg@debian.org>
+
+	* Makefile: Use BUILD_WITHOUT_MULE rather than BUILD_MULE.
+
 1998-07-23  SL Baur  <steve@altair.xemacs.org>
 
 	* Makefile: Don't build if XEmacs/no-Mule.
@@ -17,4 +21,3 @@
 	* edict.el:
 	* edict-test.el: Minimal patches to bytecompile under XEmacs 21.0.
 	Converted to ISO-2022-JP.
-

@@ -34,7 +34,7 @@ COMPATIBILITY_FLAGS = -eval "(setq byte-compile-print-gensym nil)"
 
 include ../../XEmacs.rules
 
-ifeq ($(BUILD_MULE),t)
+ifeq ($(BUILD_WITHOUT_MULE),)
 
 all:: $(ELCS) auto-autoloads.elc
 
