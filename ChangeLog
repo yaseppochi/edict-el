@@ -1,3 +1,10 @@
+2009-08-13  Aidan Kehoe  <kehoea@parhasard.net>
+
+	* edict-edit.el: 
+	Have compiled 21.4 code also work on XEmacs binaries with real
+	support for multiple values, by avoiding runtime calls to
+	#'values.
+
 2003-10-31  Norbert Koch  <viteno@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.16 released.

@@ -45,6 +45,12 @@
 
 (require 'cl)
 
+;; Have compiled 21.4 code also work on XEmacs binaries with real support
+;; for multiple values, by avoiding runtime calls to #'values: 
+(eval-when-compile (when (eq 'list (symbol-function 'values))
+                     (define-compiler-macro values (&rest args)
+                       `(list ,@args))))
+
 ;;; Customizable variables
 
 ;; #### does this tristate make sense with Customize support?
