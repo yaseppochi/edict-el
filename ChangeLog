@@ -1,3 +1,7 @@
+2009-10-02  Norbert Koch  <viteno@xemacs.org>
+
+	* Makefile (VERSION): XEmacs package 1.17 released.
+
 2009-08-13  Aidan Kehoe  <kehoea@parhasard.net>
 
 	* edict-edit.el: 
