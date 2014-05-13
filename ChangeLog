@@ -1,3 +1,8 @@
+2014-05-13  Jerry James  <james@xemacs.org>
+
+	* .cvsignore: Remove.
+	* .hgignore: New file.
+
 2009-10-02  Norbert Koch  <viteno@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.17 released.

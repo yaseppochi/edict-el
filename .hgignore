@@ -1,0 +1,10 @@
+^#\..*#$
+^\.#
+~$
+\.elc$
+^_pkg\.el$
+^auto-autoloads\.el$
+^custom-defines\.el$
+^custom-load\.el$
+^package-info$
+^pdepends\.mk$
