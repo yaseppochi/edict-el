@@ -1,3 +1,7 @@
+2014-05-15  Norbert Koch  <viteno@xemacs.org>
+
+	* Makefile (VERSION): XEmacs package 1.18 released.
+
 2014-05-13  Jerry James  <james@xemacs.org>
 
 	* .cvsignore: Remove.

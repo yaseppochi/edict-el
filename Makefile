@@ -19,7 +19,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-VERSION = 1.17
+VERSION = 1.18
 AUTHOR_VERSION = 0.9.9
 MAINTAINER = Stephen J. Turnbull <stephen@xemacs.org>
 PACKAGE = edict
